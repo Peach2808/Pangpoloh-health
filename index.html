@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PangPoLoh Health (Off-Grid) - ระบบเวชระเบียนชุมชน & สัญญาณชีพ</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Sarabun & Kanit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Sarabun', 'sans-serif'],
+            display: ['Kanit', 'sans-serif'],
+          },
+          colors: {
+            medical: {
+              50: '#f0fdf9',
+              100: '#ccfbef',
+              200: '#99f6e0',
+              500: '#0d9488',
+              600: '#0f766e',
+              700: '#115e59',
+              800: '#134e4a',
+              900: '#134340',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Sarabun', sans-serif; }
+    h1, h2, h3, h4, .font-heading { font-family: 'Kanit', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased select-none sm:select-auto">
+
+  <!-- LOGIN OVERLAY MODAL -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden transform transition-all p-7">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-medical-50 text-medical-600 rounded-2xl mx-auto flex items-center justify-center shadow-inner mb-3">
+          <i data-lucide="shield-plus" class="w-9 h-9"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800">เข้าสู่ระบบ PangPoLoh Health</h2>
+        <p class="text-xs text-slate-500 mt-1">ระบบเวชระเบียนชุมชน คลินิกเคลื่อนที่ & พื้นที่ห่างไกล (ปางโปโล เฮลธ์)</p>
+      </div>
+
+      <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อผู้ใช้งาน (Username)</label>
+          <div class="relative">
+            <input type="text" id="loginUsername" required placeholder="เช่น admin หรือ user"
+              class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white transition">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสผ่าน (Password)</label>
+          <div class="relative">
+            <input type="password" id="loginPassword" required placeholder="••••••••"
+              class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 focus:bg-white transition">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-medical-600 hover:bg-medical-700 text-white font-bold rounded-xl shadow-lg shadow-medical-600/30 transition flex items-center justify-center gap-2 text-sm">
+          <i data-lucide="log-in" class="w-4 h-4"></i> เข้าสู่ระบบ
+        </button>
+      </form>
+
+      <!-- Demo Accounts helper box -->
+      <div class="mt-6 pt-4 border-t border-slate-100 bg-slate-50/80 rounded-2xl p-3 text-xs text-slate-600">
+        <p class="font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+          <i data-lucide="key" class="w-3.5 h-3.5 text-medical-600"></i> บัญชีทดสอบเริ่มต้น:
+        </p>
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="bg-white p-2 rounded-lg border border-slate-200 cursor-pointer hover:border-medical-500 transition" onclick="quickFillLogin('admin', 'admin123')">
+            <span class="font-bold text-emerald-700 block">👑 Admin (สิทธิ์เต็ม)</span>
+            user: <code class="font-mono text-slate-800">admin</code><br>
+            pass: <code class="font-mono text-slate-800">admin123</code>
+          </div>
+          <div class="bg-white p-2 rounded-lg border border-slate-200 cursor-pointer hover:border-medical-500 transition" onclick="quickFillLogin('user', 'user123')">
+            <span class="font-bold text-blue-700 block">🩺 Staff (บันทึกตรวจ)</span>
+            user: <code class="font-mono text-slate-800">user</code><br>
+            pass: <code class="font-mono text-slate-800">user123</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP HEADER -->
+  <header class="bg-medical-700 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-3">
+          <div class="bg-white/10 p-2 rounded-xl backdrop-blur-md">
+            <i data-lucide="activity" class="w-6 h-6 text-emerald-300"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-bold tracking-tight">PangPoLoh Health</h1>
+              <span class="bg-emerald-500/20 text-emerald-200 text-xs px-2 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Offline
+              </span>
+            </div>
+            <p class="text-xs text-teal-100 font-light">ปางโปโล เฮลธ์ • เวชระเบียนชุมชน & คัดกรองสัญญาณชีพ รพ.สต. พื้นที่สูง</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex space-x-1 bg-medical-800/60 p-1 rounded-xl text-xs sm:text-sm font-medium">
+          <button onclick="switchTab('treatment')" id="tab-btn-treatment" class="tab-btn px-3.5 py-1.5 rounded-lg transition flex items-center gap-1.5 bg-white text-medical-800 shadow-sm font-semibold">
+            <i data-lucide="stethoscope" class="w-4 h-4"></i> ตรวจรักษา & จ่ายยา
+          </button>
+          <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="tab-btn px-3.5 py-1.5 rounded-lg transition flex items-center gap-1.5 text-teal-100 hover:text-white hover:bg-white/10">
+            <i data-lucide="boxes" class="w-4 h-4"></i> คลังยา & เติมสต็อก
+            <span id="lowStockBadge" class="hidden ml-1 px-1.5 py-0.2 text-[10px] bg-amber-500 text-slate-900 font-bold rounded-full">0</span>
+          </button>
+          <button onclick="switchTab('history')" id="tab-btn-history" class="tab-btn px-3.5 py-1.5 rounded-lg transition flex items-center gap-1.5 text-teal-100 hover:text-white hover:bg-white/10">
+            <i data-lucide="history" class="w-4 h-4"></i> ประวัติรับบริการ
+          </button>
+          <button onclick="switchTab('users')" id="tab-btn-users" class="tab-btn px-3.5 py-1.5 rounded-lg transition flex items-center gap-1.5 text-teal-100 hover:text-white hover:bg-white/10">
+            <i data-lucide="users" class="w-4 h-4"></i> ผู้ใช้งาน
+          </button>
+        </nav>
+
+        <!-- Current User Profile & Logout -->
+        <div class="flex items-center gap-2 bg-medical-800/80 px-3 py-1.5 rounded-xl border border-medical-600/50">
+          <div class="text-right">
+            <div id="navUserName" class="text-xs font-bold leading-tight">Admin Demo</div>
+            <div id="navUserRoleBadge" class="text-[10px] text-teal-200">หัวหน้าสถานี (Admin)</div>
+          </div>
+          <button onclick="handleLogout()" title="ออกจากระบบ" class="ml-1 p-1.5 bg-white/10 hover:bg-rose-500/80 text-white rounded-lg transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-24 opacity-0 pointer-events-none flex items-center gap-3 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700">
+      <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+      <span id="toast-message" class="text-sm font-medium">สำเร็จ</span>
+    </div>
+
+    <!-- TAB 1: บันทึกตรวจ & สัญญาณชีพ & จ่ายยา (TREATMENT TAB) -->
+    <section id="section-treatment" class="space-y-5">
+      <form id="visitForm" onsubmit="event.preventDefault(); handleSaveVisit();" class="space-y-5">
+        
+        <!-- SECTION 1: ข้อมูลผู้รับบริการและการมาตรวจ -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div class="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 font-heading">
+              <i data-lucide="user-check" class="w-5 h-5 text-medical-600"></i>
+              1. ข้อมูลผู้รับบริการ & วันเวลามาตรวจ
+            </h2>
+            <div class="flex items-center gap-2">
+              <label for="visitDateTime" class="text-xs font-semibold text-slate-500">วัน-เวลารับบริการ:</label>
+              <input type="datetime-local" id="visitDateTime" required
+                class="text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-medical-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+            <!-- 13 Digits Citizen ID -->
+            <div class="md:col-span-4">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">
+                เลขประจำตัวประชาชน 13 หลัก <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <input type="text" id="citizenId" maxlength="13" placeholder="กรอกเลข 13 หลักเพื่อดึงประวัติเดิม" required
+                  oninput="handleCitizenIdInput(this.value)"
+                  class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 font-mono tracking-wide">
+                <span id="cidSearchStatus" class="absolute right-3 top-2.5 text-slate-400">
+                  <i data-lucide="search" class="w-4 h-4"></i>
+                </span>
+              </div>
+              <p id="cidHelperText" class="text-[11px] text-slate-500 mt-1">หากเคยมีประวัติ ระบบจะดึงชื่อ สัญญาณชีพเก่า และประวัติโรคเดิมขึ้นมาให้อัตโนมัติ</p>
+            </div>
+
+            <!-- Full Name -->
+            <div class="md:col-span-4">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อ - นามสกุล <span class="text-rose-500">*</span></label>
+              <input type="text" id="patientName" placeholder="เช่น นายสมชาย ใจมั่น" required
+                class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
+            </div>
+
+            <!-- Age -->
+            <div class="md:col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">อายุ (ปี)</label>
+              <input type="number" id="patientAge" min="0" max="130" placeholder="เช่น 45"
+                class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
+            </div>
+
+            <!-- Gender -->
+            <div class="md:col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">เพศ</label>
+              <select id="patientGender" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white">
+                <option value="ชาย">ชาย</option>
+                <option value="หญิง">หญิง</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: คัดกรองสัญญาณชีพ & ร่างกาย (VITAL SIGNS SCREENING) -->
+        <div class="bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/40 rounded-2xl p-5 shadow-sm border border-emerald-100">
+          <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-4">
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 font-heading">
+              <i data-lucide="heart-pulse" class="w-5 h-5 text-medical-600"></i>
+              2. สัญญาณชีพและการคัดกรองร่างกาย (Vital Signs)
+            </h2>
+            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-medium">คำนวณ BMI & ประเมิน BP อัตโนมัติ</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            <!-- Weight -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">น้ำหนัก (กก.)</label>
+              <input type="number" step="0.1" id="vsWeight" placeholder="เช่น 65.5" oninput="calculateBMI()"
+                class="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white">
+            </div>
+
+            <!-- Height -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">ส่วนสูง (ซม.)</label>
+              <input type="number" step="0.5" id="vsHeight" placeholder="เช่น 168" oninput="calculateBMI()"
+                class="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white">
+            </div>
+
+            <!-- BMI Result -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">ดัชนีมวลกาย (BMI)</label>
+              <div class="flex items-center gap-1.5">
+                <input type="text" id="vsBmi" readonly placeholder="-"
+                  class="w-20 px-2 py-1.5 border border-slate-200 bg-slate-100 rounded-xl text-sm font-bold text-center text-slate-700">
+                <span id="bmiTag" class="text-[10px] px-1.5 py-1 rounded-lg bg-slate-200 text-slate-600 font-semibold whitespace-nowrap">รอข้อมูล</span>
+              </div>
+            </div>
+
+            <!-- Blood Pressure (SBP / DBP) -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">ความดันโลหิต (BP)</label>
+              <div class="flex items-center gap-1">
+                <input type="number" id="vsSbp" placeholder="SBP" oninput="evaluateBP()" title="ความดันตัวบน (Systolic)"
+                  class="w-1/2 px-2 py-1.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white text-center">
+                <span class="text-slate-400 font-bold">/</span>
+                <input type="number" id="vsDbp" placeholder="DBP" oninput="evaluateBP()" title="ความดันตัวล่าง (Diastolic)"
+                  class="w-1/2 px-2 py-1.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white text-center">
+              </div>
+              <div id="bpAlert" class="text-[10px] text-slate-500 font-medium mt-1 truncate">mmHg</div>
+            </div>
+
+            <!-- Pulse -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">ชีพจร (PR - bpm)</label>
+              <input type="number" id="vsPulse" placeholder="เช่น 78"
+                class="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white">
+            </div>
+
+            <!-- Respiratory Rate & Waist -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">หายใจ (RR) / เอว (ซม.)</label>
+              <div class="flex items-center gap-1">
+                <input type="number" id="vsRr" placeholder="RR" title="อัตราหายใจ (ครั้ง/นาที)"
+                  class="w-1/2 px-2 py-1.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white text-center">
+                <input type="number" step="0.5" id="vsWaist" placeholder="เอว" title="รอบเอว (ซม.)"
+                  class="w-1/2 px-2 py-1.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-medical-500 bg-white text-center">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3 & 4: อาการตรวจวินิจฉัย (CC, HI, PI, Dx) & การสั่งยา (Rx) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          
+          <!-- ฝั่งซ้าย: อาการและการวินิจฉัยโรค -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-3.5">
+              <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3 font-heading">
+                <i data-lucide="clipboard-pen-line" class="w-5 h-5 text-medical-600"></i>
+                3. บันทึกอาการและการวินิจฉัยโรค
+              </h2>
+
+              <!-- CC -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                  CC (อาการสำคัญ): <span class="text-rose-500">*</span>
+                </label>
+                <textarea id="cc" rows="2" required placeholder="เช่น ไข้ เจ็บคอ ปวดเมื่อยตัว มีน้ำมูก เป็นมา 2 วัน"
+                  class="w-full p-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></textarea>
+              </div>
+
+              <!-- HI & PI Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">HI (ประวัติในอดีต / แพ้ยา):</label>
+                  <textarea id="hi" rows="2" placeholder="เช่น ปฏิเสธโรคประจำตัว, ไม่แพ้ยา"
+                    class="w-full p-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">PI (ประวัติปัจจุบัน):</label>
+                  <textarea id="pi" rows="2" placeholder="เช่น ครั่นเนื้อครั่นตัว ทานพาราแล้วยังไม่ทุเลา"
+                    class="w-full p-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500"></textarea>
+                </div>
+              </div>
+
+              <hr class="border-slate-100">
+
+              <!-- Dx Modern -->
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-xs font-semibold text-slate-700">
+                    Dx. แผนปัจจุบัน (ICD-10): <span class="text-rose-500">*</span>
+                  </label>
+                  <span class="text-[11px] text-teal-600 cursor-pointer hover:underline font-medium" onclick="toggleQuickDx()">+ ตัวเลือกด่วน</span>
+                </div>
+                <input type="text" id="dxModern" required list="modernDxSuggestions" placeholder="เช่น J06.9 Acute upper respiratory infection, unspecified"
+                  class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 font-medium">
+                <datalist id="modernDxSuggestions">
+                  <option value="J06.9 Acute upper respiratory infection (URI)">ไข้หวัด / ทางเดินหายใจส่วนบนเฉียบพลัน</option>
+                  <option value="J00 Acute nasopharyngitis (common cold)">หวัดคัดจมูก</option>
+                  <option value="K29.7 Gastritis, unspecified">กระเพาะอาหารอักเสบ</option>
+                  <option value="M79.1 Myalgia (ปวดเมื่อยกล้ามเนื้อ)">ปวดเมื่อยกล้ามเนื้อ</option>
+                  <option value="A09 Diarrhoea and gastroenteritis">อุจจาระร่วงเฉียบพลัน</option>
+                  <option value="R51 Headache">ปวดศีรษะ</option>
+                  <option value="I10 Essential (primary) hypertension">ความดันโลหิตสูง</option>
+                  <option value="E11 Type 2 diabetes mellitus">เบาหวานชนิดที่ 2</option>
+                  <option value="L30.9 Dermatitis, unspecified">ผื่นผิวหนังอักเสบ</option>
+                </datalist>
+
+                <!-- Quick Diagnosis Chips -->
+                <div id="quickDxContainer" class="hidden mt-2 flex flex-wrap gap-1.5 p-2 bg-slate-50 rounded-xl border border-slate-200">
+                  <button type="button" onclick="setQuickDx('J06.9 Acute upper respiratory infection (URI)')" class="text-xs bg-white border border-slate-200 px-2 py-1 rounded-lg hover:border-medical-500">URI (J06.9)</button>
+                  <button type="button" onclick="setQuickDx('K29.7 Gastritis, unspecified')" class="text-xs bg-white border border-slate-200 px-2 py-1 rounded-lg hover:border-medical-500">Gastritis (K29.7)</button>
+                  <button type="button" onclick="setQuickDx('M79.1 Myalgia (ปวดกล้ามเนื้อ)')" class="text-xs bg-white border border-slate-200 px-2 py-1 rounded-lg hover:border-medical-500">Myalgia (M79.1)</button>
+                  <button type="button" onclick="setQuickDx('A09 Diarrhoea')" class="text-xs bg-white border border-slate-200 px-2 py-1 rounded-lg hover:border-medical-500">Diarrhoea (A09)</button>
+                </div>
+              </div>
+
+              <!-- Dx Thai Traditional (Auto Triggered by Herb Rx) -->
+              <div class="bg-amber-50/60 p-3.5 rounded-xl border border-amber-200">
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                    <i data-lucide="leaf" class="w-4 h-4 text-emerald-600"></i>
+                    Dx. แผนไทย (ICD-10 TM หมวด U):
+                  </label>
+                  <span id="herbAutoBadge" class="hidden text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold border border-emerald-300">
+                    Auto-filled จากยาสมุนไพร
+                  </span>
+                </div>
+                <input type="text" id="dxThai" placeholder="จะแสดงอัตโนมัติเมื่อเลือกยาสมุนไพรในช่องจ่ายยา หรือกรอกเองได้"
+                  class="w-full px-3 py-2 border border-amber-300 bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <p class="text-[11px] text-amber-700 mt-1">
+                  * เมื่อจ่ายยาฟ้าทะลายโจร มะขามป้อม ขมิ้นชัน หรือสมุนไพรอื่นๆ รหัส ICD-10 TM หมวด U จะถูกเติมอัตโนมัติ
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ฝั่งขวา: การสั่งยาและตัดสต็อก (Rx) -->
+          <div class="lg:col-span-6 space-y-4">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between h-full">
+              <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                  <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 font-heading">
+                    <i data-lucide="pill" class="w-5 h-5 text-medical-600"></i>
+                    4. การสั่งยา & ตัดสต็อก (Rx.)
+                  </h2>
+                  <span class="text-xs text-slate-500 font-medium" id="rxCountLabel">0 รายการ</span>
+                </div>
+
+                <!-- Add Medicine Tool -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3 mb-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">เลือกรายการยาจากคลัง:</label>
+                    <select id="medSelect" onchange="handleMedSelectChange()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-medical-500">
+                      <option value="">-- เลือกยาที่จะจ่าย --</option>
+                    </select>
+                  </div>
+
+                  <div id="medDetailRow" class="hidden grid grid-cols-12 gap-2 items-end">
+                    <div class="col-span-4">
+                      <label class="block text-[11px] font-semibold text-slate-600 mb-1">จำนวนจ่าย:</label>
+                      <input type="number" id="medQty" min="1" value="10" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
+                    </div>
+                    <div class="col-span-5">
+                      <label class="block text-[11px] font-semibold text-slate-600 mb-1">วิธีใช้:</label>
+                      <input type="text" id="medInstruction" placeholder="1 เม็ด 3 เวลา หลังอาหาร" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-medical-500">
+                    </div>
+                    <div class="col-span-3">
+                      <button type="button" onclick="addMedToRx()" class="w-full py-1.5 px-3 bg-medical-600 hover:bg-medical-700 text-white rounded-lg text-sm font-medium transition flex items-center justify-center gap-1 shadow-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i> เพิ่มยา
+                      </button>
+                    </div>
+                  </div>
+                  <div id="medStockNotice" class="text-xs text-slate-500 font-medium"></div>
+                </div>
+
+                <!-- Prescription List Table -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden mb-4">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-600 uppercase font-semibold border-b border-slate-200">
+                      <tr>
+                        <th class="p-2.5">รายการยา</th>
+                        <th class="p-2.5">วิธีใช้</th>
+                        <th class="p-2.5 text-center">จำนวน</th>
+                        <th class="p-2.5 text-center">จัดการ</th>
+                      </tr>
+                    </thead>
+                    <tbody id="rxTableBody" class="divide-y divide-slate-100">
+                      <tr id="emptyRxRow">
+                        <td colspan="4" class="p-6 text-center text-slate-400">
+                          ยังไม่มีรายการยาที่สั่งจ่าย
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="pt-3 border-t border-slate-100">
+                <button type="submit" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-base">
+                  <i data-lucide="check-circle-2" class="w-5 h-5"></i> บันทึกการตรวจและตัดสต็อกยาทันที
+                </button>
+                <p class="text-[11px] text-center text-slate-400 mt-2">บันทึกทั้งประวัติ อาการ สัญญาณชีพ และตัดสต็อกคลังยาในเครื่องทันที</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </section>
+
+    <!-- TAB 2: คลังยา & เติมสต็อก (INVENTORY TAB) -->
+    <section id="section-inventory" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 font-heading">
+              <i data-lucide="boxes" class="w-5 h-5 text-medical-600"></i>
+              ระบบคลังยาและเวชภัณฑ์ (Stock Management)
+            </h2>
+            <p class="text-xs text-slate-500">ตรวจสอบจำนวนยาคงเหลือ เติมสต็อกยา (เฉพาะ Admin) และจ่ายยา</p>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <!-- Admin Only Action Buttons -->
+            <button id="btnAddMedStock" onclick="openAddMedModal()" class="admin-only px-3 py-2 bg-medical-600 hover:bg-medical-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> เพิ่มทะเบียนยาใหม่
+            </button>
+            <button id="btnResetStock" onclick="resetDefaultStock()" class="admin-only px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium flex items-center gap-1">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> คืนค่าเริ่มต้น
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search in Inventory -->
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <div class="relative flex-1 min-w-[200px]">
+            <input type="text" id="inventorySearch" oninput="renderInventoryTable()" placeholder="ค้นหาชื่อยา รหัสยา หรือประเภทยา..." class="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2 text-slate-400"></i>
+          </div>
+          <select id="inventoryTypeFilter" onchange="renderInventoryTable()" class="px-3 py-1.5 text-xs border border-slate-300 rounded-xl bg-white focus:outline-none">
+            <option value="all">ยาทั้งหมด</option>
+            <option value="modern">เฉพาะแผนปัจจุบัน</option>
+            <option value="herb">เฉพาะยาสมุนไพร (แผนไทย)</option>
+            <option value="low">เฉพาะยาใกล้หมด (<= 20)</option>
+          </select>
+        </div>
+
+        <!-- Stock Table -->
+        <div class="border border-slate-200 rounded-xl overflow-x-auto">
+          <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3">รหัส</th>
+                <th class="p-3">ชื่อยา / เวชภัณฑ์</th>
+                <th class="p-3">หมวดหมู่</th>
+                <th class="p-3">รหัสโรคที่ผูก (ICD-10 แผนไทย)</th>
+                <th class="p-3 text-center">ยอดคงเหลือ</th>
+                <th class="p-3">หน่วย</th>
+                <th class="p-3 text-center">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody" class="divide-y divide-slate-100">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: ประวัติรับบริการ & ส่งออกข้อมูล (HISTORY TAB) -->
+    <section id="section-history" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 font-heading">
+              <i data-lucide="file-spreadsheet" class="w-5 h-5 text-medical-600"></i>
+              ประวัติการให้บริการ & สำรองข้อมูล (History & Backup)
+            </h2>
+            <p class="text-xs text-slate-500">ดูบันทึกตรวจและสัญญาณชีพย้อนหลัง พร้อมส่งออกข้อมูลลงเครื่อง</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="exportToCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="download" class="w-4 h-4"></i> ส่งออกเป็น CSV (Excel)
+            </button>
+            <button onclick="exportJSONBackup()" class="px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5">
+              <i data-lucide="save" class="w-4 h-4"></i> Backup JSON
+            </button>
+            <label class="admin-only px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium cursor-pointer flex items-center gap-1.5">
+              <i data-lucide="upload" class="w-4 h-4"></i> Restore Data
+              <input type="file" id="restoreFileInput" accept=".json" onchange="restoreJSONData(event)" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <!-- History Search -->
+        <div class="mb-4">
+          <input type="text" id="historySearch" oninput="renderHistoryTable()" placeholder="ค้นหาด้วย เลขบัตร 13 หลัก หรือ ชื่อ-สกุล..." class="w-full md:w-80 px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-medical-500">
+        </div>
+
+        <!-- History Table with Vital Signs columns -->
+        <div class="border border-slate-200 rounded-xl overflow-x-auto">
+          <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3">วัน-เวลา</th>
+                <th class="p-3">เลข 13 หลัก</th>
+                <th class="p-3">ชื่อ-สกุล</th>
+                <th class="p-3">สัญญาณชีพ (BP, PR, BMI)</th>
+                <th class="p-3">อาการสำคัญ (CC)</th>
+                <th class="p-3">Dx. แผนปัจจุบัน</th>
+                <th class="p-3">Dx. แผนไทย</th>
+                <th class="p-3">ยาที่จ่าย (Rx)</th>
+                <th class="p-3 text-center">ผู้ตรวจ</th>
+                <th class="p-3 text-center admin-only">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody" class="divide-y divide-slate-100">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: การจัดการผู้ใช้งาน (USERS TAB - ADMIN ONLY) -->
+    <section id="section-users" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 font-heading">
+              <i data-lucide="user-cog" class="w-5 h-5 text-medical-600"></i>
+              ระบบจัดการผู้ใช้งานและสิทธิ์ (User & Role Management)
+            </h2>
+            <p class="text-xs text-slate-500">เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถเพิ่ม แก้ไข หรือกำหนดสิทธิ์การใช้งานได้</p>
+          </div>
+
+          <button id="btnOpenAddUser" onclick="openAddUserModal()" class="admin-only px-3.5 py-2 bg-medical-600 hover:bg-medical-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="user-plus" class="w-4 h-4"></i> เพิ่มผู้ใช้งานใหม่
+          </button>
+        </div>
+
+        <div id="usersForbiddenNotice" class="hidden p-8 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+          <i data-lucide="shield-alert" class="w-12 h-12 mx-auto text-amber-500 mb-2"></i>
+          <h3 class="font-bold text-slate-700">ไม่มีสิทธิ์เข้าถึงส่วนนี้</h3>
+          <p class="text-xs text-slate-500 mt-1">เฉพาะผู้ใช้งานระดับ Admin (ผู้ดูแลระบบ) เท่านั้นที่สามารถจัดการบัญชีผู้ใช้งานได้</p>
+        </div>
+
+        <div id="usersContentArea" class="border border-slate-200 rounded-xl overflow-x-auto">
+          <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="p-3">ชื่อผู้ใช้ (Username)</th>
+                <th class="p-3">ชื่อ - นามสกุล</th>
+                <th class="p-3">ตำแหน่งงาน</th>
+                <th class="p-3 text-center">สิทธิ์การใช้งาน (Role)</th>
+                <th class="p-3 text-center">สถานะ</th>
+                <th class="p-3 text-center">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody" class="divide-y divide-slate-100">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: เติมสต็อกยา (ADMIN ONLY) -->
+  <div id="restockModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-medical-600"></i> เติมสต็อกยา
+        </h3>
+        <button onclick="closeRestockModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 mb-1">รายการยา:</p>
+        <p id="restockMedName" class="font-semibold text-sm text-slate-800"></p>
+        <p id="restockCurrentStock" class="text-xs text-slate-500 mt-1"></p>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 mb-1">จำนวนที่รับเข้าเพิ่ม:</label>
+        <input type="number" id="restockAddAmount" min="1" value="50" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-medical-500 font-bold">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeRestockModal()" class="px-4 py-2 text-xs bg-slate-100 rounded-xl text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+        <button onclick="confirmRestock()" class="px-4 py-2 text-xs bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold">ยืนยันเติมยา</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: เพิ่มทะเบียนยาใหม่ (ADMIN ONLY) -->
+  <div id="addMedModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+          <i data-lucide="package-plus" class="w-4 h-4 text-medical-600"></i> เพิ่มทะเบียนยาใหม่เข้าระบบ
+        </h3>
+        <button onclick="closeAddMedModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อยาและขนาด:</label>
+          <input type="text" id="newMedName" placeholder="เช่น ยาขมิ้นชัน 250 mg" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-medical-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">หมวดหมู่ยา:</label>
+            <select id="newMedType" onchange="toggleThaiICDField(this.value)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm bg-white">
+              <option value="modern">แผนปัจจุบัน</option>
+              <option value="herb">ยาสมุนไพร (แผนไทย)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">หน่วยนับ:</label>
+            <input type="text" id="newMedUnit" placeholder="เม็ด / แคปซูล / ซอง" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ยอดเริ่มต้นในคลัง:</label>
+          <input type="number" id="newMedStock" min="0" value="100" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm">
+        </div>
+        <div id="newMedThaiICDWrapper" class="hidden">
+          <label class="block text-xs font-semibold text-emerald-800 mb-1">ผูกรหัส ICD-10 แผนไทย (หมวด U):</label>
+          <input type="text" id="newMedThaiICD" placeholder="เช่น U77.10 ท้องอืด ท้องเฟ้อ จุกเสียด" class="w-full px-3 py-2 border border-emerald-300 rounded-xl text-sm bg-emerald-50/50">
+          <p class="text-[10px] text-slate-500 mt-1">รหัสนี้จะเด้งเข้าช่อง Dx. แผนไทย เมื่อมีการจ่ายยานี้</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button onclick="closeAddMedModal()" class="px-4 py-2 text-xs bg-slate-100 rounded-xl text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+        <button onclick="saveNewMedicine()" class="px-4 py-2 text-xs bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold">บันทึกยาใหม่</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: เพิ่มผู้ใช้งานใหม่ (ADMIN ONLY) -->
+  <div id="addUserModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+          <i data-lucide="user-plus" class="w-4 h-4 text-medical-600"></i> เพิ่มผู้ใช้งานใหม่
+        </h3>
+        <button onclick="closeAddUserModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อผู้ใช้งาน (Username):</label>
+          <input type="text" id="newUsername" placeholder="เช่น nurse01" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-medical-500 font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสผ่าน (Password):</label>
+          <input type="password" id="newUserPass" placeholder="••••••••" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-medical-500 font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อ - สกุล ผู้ใช้งาน:</label>
+          <input type="text" id="newFullName" placeholder="เช่น พว.วิไลวรรณ ใจดี" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-medical-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">ตำแหน่งงาน:</label>
+            <input type="text" id="newPosition" placeholder="เช่น พยาบาลวิชาชีพ / อสม." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-medical-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">สิทธิ์การใช้งาน (Role):</label>
+            <select id="newUserRole" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm bg-white">
+              <option value="user">Staff (ผู้ใช้งานทั่วไป)</option>
+              <option value="admin">Admin (ผู้ดูแลระบบ)</option>
+            </select>
+          </div>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-500">
+          * <strong>Staff:</strong> บันทึกตรวจและจ่ายยาได้เท่านั้น ไม่สามารถแก้ไขสต็อก ลบประวัติ หรือเพิ่มผู้ใช้<br>
+          * <strong>Admin:</strong> สิทธิ์สูงสุด จัดการคลัง เติมยา ลบประวัติ และจัดการผู้ใช้ได้
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button onclick="closeAddUserModal()" class="px-4 py-2 text-xs bg-slate-100 rounded-xl text-slate-600 hover:bg-slate-200">ยกเลิก</button>
+        <button onclick="saveNewUser()" class="px-4 py-2 text-xs bg-medical-600 hover:bg-medical-700 text-white rounded-xl font-bold">บันทึกผู้ใช้</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // Initial Seed Data & LocalStorage Keys
+    // -------------------------------------------------------------
+    const STORAGE_INVENTORY_KEY = 'pangpoloh_inventory_v1';
+    const STORAGE_VISITS_KEY = 'pangpoloh_visits_v1';
+    const STORAGE_PATIENTS_KEY = 'pangpoloh_patients_v1';
+    const STORAGE_USERS_KEY = 'pangpoloh_users_v1';
+    const STORAGE_SESSION_KEY = 'pangpoloh_session_v1';
+
+    const DEFAULT_USERS = [
+      { username: 'admin', pass: 'admin123', name: 'นพ.สมศักดิ์ สุขใจ', role: 'admin', position: 'แพทย์ / หัวหน้าสถานี' },
+      { username: 'user', pass: 'user123', name: 'พว.สุดาพร พูนสุข', role: 'user', position: 'พยาบาลวิชาชีพชำนาญการ' },
+    ];
+
+    const DEFAULT_INVENTORY = [
+      // แผนปัจจุบัน
+      { id: 'MED001', name: 'Paracetamol 500 mg', type: 'modern', stock: 500, unit: 'เม็ด', defaultInstruction: '1 เม็ด ทุก 4-6 ชม. เวลาปวดหรือมีไข้', thaiIcd: '' },
+      { id: 'MED002', name: 'Amoxicillin 500 mg', type: 'modern', stock: 200, unit: 'แคปซูล', defaultInstruction: '1 แคปซูล วันละ 3 ครั้ง ก่อนอาหาร เช้า-กลางวัน-เย็น', thaiIcd: '' },
+      { id: 'MED003', name: 'Chlorpheniramine (CPM) 4 mg', type: 'modern', stock: 350, unit: 'เม็ด', defaultInstruction: '1 เม็ด วันละ 3 ครั้ง หลังอาหาร เช้า-กลางวัน-เย็น', thaiIcd: '' },
+      { id: 'MED004', name: 'Ibuprofen 400 mg', type: 'modern', stock: 120, unit: 'เม็ด', defaultInstruction: '1 เม็ด วันละ 3 ครั้ง หลังอาหารทันที (ห้ามกินตอนท้องว่าง)', thaiIcd: '' },
+      { id: 'MED005', name: 'Omeprazole 20 mg', type: 'modern', stock: 150, unit: 'แคปซูล', defaultInstruction: '1 แคปซูล วันละ 1 ครั้ง ก่อนอาหารเช้า 30 นาที', thaiIcd: '' },
+      { id: 'MED006', name: 'ผงน้ำตาลเกลือแร่ (ORS)', type: 'modern', stock: 80, unit: 'ซอง', defaultInstruction: 'ละลายน้ำสะอาด 1 แก้ว จิบแทนน้ำเมื่อถ่ายเหลว', thaiIcd: '' },
+      // สมุนไพร / แผนไทย พร้อมรหัส ICD-10 TM หมวด U
+      { id: 'HERB001', name: 'ยาแคปซูลฟ้าทะลายโจร', type: 'herb', stock: 100, unit: 'แคปซูล', defaultInstruction: '3 แคปซูล วันละ 4 ครั้ง หลังอาหารและก่อนนอน', thaiIcd: 'U77.01 กลุ่มอาการไข้หวัด/ระบบทางเดินหายใจ (ไข้ ไอ เจ็บคอ)' },
+      { id: 'HERB002', name: 'ยาแคปซูลขมิ้นชัน 250 mg', type: 'herb', stock: 120, unit: 'แคปซูล', defaultInstruction: '2 แคปซูล วันละ 4 ครั้ง หลังอาหารและก่อนนอน', thaiIcd: 'U77.10 กลุ่มอาการระบบทางเดินอาหาร (ท้องอืด ท้องเฟ้อ จุกเสียด แน่นท้อง)' },
+      { id: 'HERB003', name: 'ยาแก้ไอมะขามป้อม (ยาน้ำ)', type: 'herb', stock: 45, unit: 'ขวด', defaultInstruction: 'จิบครั้งละ 1 ช้อนชา เมื่อมีอาการไอ ขับเสมหะ', thaiIcd: 'U77.03 กลุ่มอาการไอ ขับเสมหะ' },
+      { id: 'HERB004', name: 'ยาแคปซูลเถาวัลย์เปรียง', type: 'herb', stock: 60, unit: 'แคปซูล', defaultInstruction: '1-2 แคปซูล วันละ 3 ครั้ง หลังอาหาร เช้า-กลางวัน-เย็น', thaiIcd: 'U77.20 กลุ่มอาการปวดกล้ามเนื้อ ปวดเมื่อยตามร่างกาย' },
+      { id: 'HERB005', name: 'ยาหอมนวโกฐ', type: 'herb', stock: 30, unit: 'ซอง', defaultInstruction: 'ชงน้ำอุ่น 1 ช้อนชา จิบเมื่อมีอาการวิงเวียน เป็นลม คลื่นไส้', thaiIcd: 'U77.30 กลุ่มอาการวิงเวียน ลมกองละเอียด หน้ามืด' },
+      { id: 'HERB006', name: 'ยาเหลืองปิดสมุทร', type: 'herb', stock: 40, unit: 'ซอง', defaultInstruction: 'รับประทานครั้งละ 1 กรัม ละลายน้ำต้มสุก เมื่อถ่ายท้อง', thaiIcd: 'U77.12 กลุ่มอาการท้องเสียที่ไม่ติดเชื้อ (อุจจาระธาตุพิการ)' }
+    ];
+
+    // State Variables
+    let inventory = [];
+    let visits = [];
+    let patients = {};
+    let users = [];
+    let currentUser = null;
+    let currentRxList = [];
+
+    function initData() {
+      // 1. Users
+      const localUsers = localStorage.getItem(STORAGE_USERS_KEY);
+      if (localUsers) {
+        try { users = JSON.parse(localUsers); } catch(e) { users = [...DEFAULT_USERS]; }
+      } else {
+        users = [...DEFAULT_USERS];
+        saveUsers();
+      }
+
+      // 2. Inventory
+      const localInv = localStorage.getItem(STORAGE_INVENTORY_KEY);
+      if (localInv) {
+        try { inventory = JSON.parse(localInv); } catch (e) { inventory = [...DEFAULT_INVENTORY]; }
+      } else {
+        inventory = [...DEFAULT_INVENTORY];
+        saveInventory();
+      }
+
+      // 3. Visits
+      const localVisits = localStorage.getItem(STORAGE_VISITS_KEY);
+      if (localVisits) {
+        try { visits = JSON.parse(localVisits); } catch (e) { visits = []; }
+      }
+
+      // 4. Patients
+      const localPatients = localStorage.getItem(STORAGE_PATIENTS_KEY);
+      if (localPatients) {
+        try { patients = JSON.parse(localPatients); } catch (e) { patients = {}; }
+      }
+
+      // 5. Check Session
+      const sessionUser = localStorage.getItem(STORAGE_SESSION_KEY);
+      if (sessionUser) {
+        try {
+          currentUser = JSON.parse(sessionUser);
+          document.getElementById('loginModal').classList.add('hidden');
+          applyUserPermissions();
+        } catch(e) {
+          currentUser = null;
+        }
+      }
+
+      if (!currentUser) {
+        document.getElementById('loginModal').classList.remove('hidden');
+      }
+
+      // Set default datetime to now
+      resetVisitDateTime();
+
+      // Initial populate
+      populateMedSelect();
+      renderInventoryTable();
+      renderHistoryTable();
+      renderUsersTable();
+      updateLowStockBadge();
+      lucide.createIcons();
+    }
+
+    function resetVisitDateTime() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('visitDateTime').value = now.toISOString().slice(0, 16);
+    }
+
+    function saveInventory() {
+      localStorage.setItem(STORAGE_INVENTORY_KEY, JSON.stringify(inventory));
+      updateLowStockBadge();
+    }
+
+    function saveVisits() {
+      localStorage.setItem(STORAGE_VISITS_KEY, JSON.stringify(visits));
+    }
+
+    function savePatients() {
+      localStorage.setItem(STORAGE_PATIENTS_KEY, JSON.stringify(patients));
+    }
+
+    function saveUsers() {
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+    }
+
+    // -------------------------------------------------------------
+    // Authentication & Role Logic
+    // -------------------------------------------------------------
+    function handleLogin() {
+      const usernameInput = document.getElementById('loginUsername').value.trim();
+      const passInput = document.getElementById('loginPassword').value.trim();
+
+      const user = users.find(u => u.username.toLowerCase() === usernameInput.toLowerCase() && u.pass === passInput);
+
+      if (user) {
+        currentUser = user;
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(currentUser));
+        document.getElementById('loginModal').classList.add('hidden');
+        applyUserPermissions();
+        showToast(`ยินดีต้อนรับ ${user.name} (${user.position})`);
+      } else {
+        showToast('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', true);
+      }
+    }
+
+    function quickFillLogin(u, p) {
+      document.getElementById('loginUsername').value = u;
+      document.getElementById('loginPassword').value = p;
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      localStorage.removeItem(STORAGE_SESSION_KEY);
+      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('loginPassword').value = '';
+      showToast('ออกจากระบบเรียบร้อย');
+    }
+
+    function applyUserPermissions() {
+      if (!currentUser) return;
+
+      document.getElementById('navUserName').innerText = currentUser.name;
+      document.getElementById('navUserRoleBadge').innerText = `${currentUser.position} (${currentUser.role.toUpperCase()})`;
+
+      const isAdmin = currentUser.role === 'admin';
+      const adminElements = document.querySelectorAll('.admin-only');
+
+      adminElements.forEach(el => {
+        if (isAdmin) {
+          el.classList.remove('hidden');
+          el.removeAttribute('disabled');
+        } else {
+          el.classList.add('hidden');
+          el.setAttribute('disabled', 'true');
+        }
+      });
+
+      // Role check for Users tab
+      const usersForbidden = document.getElementById('usersForbiddenNotice');
+      const usersContent = document.getElementById('usersContentArea');
+      if (isAdmin) {
+        usersForbidden.classList.add('hidden');
+        usersContent.classList.remove('hidden');
+      } else {
+        usersForbidden.classList.remove('hidden');
+        usersContent.classList.add('hidden');
+      }
+
+      renderInventoryTable();
+      renderHistoryTable();
+      renderUsersTable();
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // UI Helpers & Tab Switching
+    // -------------------------------------------------------------
+    function switchTab(tab) {
+      const sections = ['treatment', 'inventory', 'history', 'users'];
+      sections.forEach(t => {
+        document.getElementById(`section-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) {
+          btn.classList.remove('bg-white', 'text-medical-800', 'shadow-sm', 'font-semibold');
+          btn.classList.add('text-teal-100', 'hover:bg-white/10');
+        }
+      });
+
+      document.getElementById(`section-${tab}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-white', 'text-medical-800', 'shadow-sm', 'font-semibold');
+        activeBtn.classList.remove('text-teal-100', 'hover:bg-white/10');
+      }
+
+      if (tab === 'inventory') renderInventoryTable();
+      if (tab === 'history') renderHistoryTable();
+      if (tab === 'users') renderUsersTable();
+      lucide.createIcons();
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastMsg.innerText = message;
+      if (isError) {
+        toastIcon.setAttribute('data-lucide', 'alert-circle');
+        toastIcon.classList.remove('text-emerald-400');
+        toastIcon.classList.add('text-rose-400');
+      } else {
+        toastIcon.setAttribute('data-lucide', 'check-circle');
+        toastIcon.classList.remove('text-rose-400');
+        toastIcon.classList.add('text-emerald-400');
+      }
+      lucide.createIcons();
+
+      toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      }, 3500);
+    }
+
+    // -------------------------------------------------------------
+    // Vital Signs & BMI Automation
+    // -------------------------------------------------------------
+    function calculateBMI() {
+      const w = parseFloat(document.getElementById('vsWeight').value);
+      const h = parseFloat(document.getElementById('vsHeight').value);
+      const bmiField = document.getElementById('vsBmi');
+      const bmiTag = document.getElementById('bmiTag');
+
+      if (w > 0 && h > 0) {
+        const hMeters = h / 100;
+        const bmi = (w / (hMeters * hMeters)).toFixed(1);
+        bmiField.value = bmi;
+
+        if (bmi < 18.5) {
+          bmiTag.innerText = 'น้ำหนักน้อย';
+          bmiTag.className = 'text-[10px] px-1.5 py-1 rounded-lg bg-sky-100 text-sky-700 font-semibold';
+        } else if (bmi <= 22.9) {
+          bmiTag.innerText = 'สมส่วนปกติ';
+          bmiTag.className = 'text-[10px] px-1.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 font-semibold';
+        } else if (bmi <= 24.9) {
+          bmiTag.innerText = 'น้ำหนักเกิน';
+          bmiTag.className = 'text-[10px] px-1.5 py-1 rounded-lg bg-amber-100 text-amber-700 font-semibold';
+        } else if (bmi <= 29.9) {
+          bmiTag.innerText = 'อ้วนระดับ 1';
+          bmiTag.className = 'text-[10px] px-1.5 py-1 rounded-lg bg-orange-100 text-orange-700 font-semibold';
+        } else {
+          bmiTag.innerText = 'อ้วนอันตราย';
+          bmiTag.className = 'text-[10px] px-1.5 py-1 rounded-lg bg-rose-100 text-rose-700 font-semibold';
+        }
+      } else {
+        bmiField.value = '';
+        bmiTag.innerText = 'รอข้อมูล';
+        bmiTag.className = 'text-[10px] px-1.5 py-1 rounded-lg bg-slate-200 text-slate-600 font-semibold';
+      }
+    }
+
+    function evaluateBP() {
+      const sbp = parseInt(document.getElementById('vsSbp').value, 10);
+      const dbp = parseInt(document.getElementById('vsDbp').value, 10);
+      const bpAlert = document.getElementById('bpAlert');
+
+      if (sbp && dbp) {
+        if (sbp >= 140 || dbp >= 90) {
+          bpAlert.innerText = '⚠️ ความดันสูง (Hypertension)';
+          bpAlert.className = 'text-[10px] font-bold text-rose-600 mt-1 truncate';
+        } else if (sbp >= 120 || dbp >= 80) {
+          bpAlert.innerText = '⚡ ความดันเริ่มสูง (Pre-HT)';
+          bpAlert.className = 'text-[10px] font-medium text-amber-600 mt-1 truncate';
+        } else if (sbp < 90 || dbp < 60) {
+          bpAlert.innerText = '💧 ความดันต่ำ (Hypotension)';
+          bpAlert.className = 'text-[10px] font-medium text-sky-600 mt-1 truncate';
+        } else {
+          bpAlert.innerText = '✅ ความดันปกติ (Optimal)';
+          bpAlert.className = 'text-[10px] font-semibold text-emerald-600 mt-1 truncate';
+        }
+      } else {
+        bpAlert.innerText = 'mmHg';
+        bpAlert.className = 'text-[10px] text-slate-500 font-medium mt-1 truncate';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Patient Search & Auto-fill
+    // -------------------------------------------------------------
+    function handleCitizenIdInput(cid) {
+      const cleanCid = cid.trim();
+      const statusIcon = document.getElementById('cidSearchStatus');
+      const helper = document.getElementById('cidHelperText');
+
+      if (cleanCid.length === 13 && patients[cleanCid]) {
+        const p = patients[cleanCid];
+        document.getElementById('patientName').value = p.name || '';
+        document.getElementById('patientAge').value = p.age || '';
+        document.getElementById('patientGender').value = p.gender || 'ชาย';
+        if (p.hi) document.getElementById('hi').value = p.hi;
+        if (p.weight) document.getElementById('vsWeight').value = p.weight;
+        if (p.height) document.getElementById('vsHeight').value = p.height;
+        if (p.waist) document.getElementById('vsWaist').value = p.waist;
+        calculateBMI();
+
+        statusIcon.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-emerald-500"></i>';
+        helper.innerText = 'พบประวัติเก่า! ดึงข้อมูลเดิมเรียบร้อย';
+        helper.className = 'text-[11px] text-emerald-600 font-medium mt-1';
+        lucide.createIcons();
+      } else {
+        statusIcon.innerHTML = '<i data-lucide="search" class="w-4 h-4 text-slate-400"></i>';
+        helper.innerText = 'หากเคยมีประวัติ ระบบจะดึงชื่อ สัญญาณชีพเก่า และประวัติโรคเดิมขึ้นมาให้อัตโนมัติ';
+        helper.className = 'text-[11px] text-slate-500 mt-1';
+        lucide.createIcons();
+      }
+    }
+
+    function toggleQuickDx() {
+      document.getElementById('quickDxContainer').classList.toggle('hidden');
+    }
+
+    function setQuickDx(val) {
+      document.getElementById('dxModern').value = val;
+      document.getElementById('quickDxContainer').classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // Prescription (Rx) & Auto Thai ICD-10 Logic
+    // -------------------------------------------------------------
+    function populateMedSelect() {
+      const select = document.getElementById('medSelect');
+      select.innerHTML = '<option value="">-- เลือกยาที่จะจ่าย --</option>';
+
+      const modernGroup = document.createElement('optgroup');
+      modernGroup.label = '💊 ยาแผนปัจจุบัน';
+      const herbGroup = document.createElement('optgroup');
+      herbGroup.label = '🌿 ยาสมุนไพร / แผนไทย';
+
+      inventory.forEach(med => {
+        const opt = document.createElement('option');
+        opt.value = med.id;
+        opt.innerText = `${med.name} (คงเหลือ: ${med.stock} ${med.unit})`;
+        if (med.type === 'herb') {
+          herbGroup.appendChild(opt);
+        } else {
+          modernGroup.appendChild(opt);
+        }
+      });
+
+      select.appendChild(modernGroup);
+      select.appendChild(herbGroup);
+    }
+
+    function handleMedSelectChange() {
+      const medId = document.getElementById('medSelect').value;
+      const detailRow = document.getElementById('medDetailRow');
+      const stockNotice = document.getElementById('medStockNotice');
+
+      if (!medId) {
+        detailRow.classList.add('hidden');
+        stockNotice.innerText = '';
+        return;
+      }
+
+      const med = inventory.find(m => m.id === medId);
+      if (!med) return;
+
+      detailRow.classList.remove('hidden');
+      document.getElementById('medInstruction').value = med.defaultInstruction || '';
+      document.getElementById('medQty').value = med.type === 'herb' ? 1 : 10;
+
+      if (med.stock <= 0) {
+        stockNotice.innerHTML = `<span class="text-rose-600 font-bold">⚠️️ ยานี้หมดสต็อกแล้ว!</span>`;
+      } else if (med.stock <= 20) {
+        stockNotice.innerHTML = `<span class="text-amber-600 font-semibold">⚠️️ ยาใกล้หมดสต็อก คงเหลือเพียง ${med.stock} ${med.unit}</span>`;
+      } else {
+        stockNotice.innerHTML = `<span class="text-emerald-700">คงเหลือในคลัง: ${med.stock} ${med.unit}</span>`;
+      }
+    }
+
+    function addMedToRx() {
+      const medId = document.getElementById('medSelect').value;
+      const qty = parseInt(document.getElementById('medQty').value, 10);
+      const instruction = document.getElementById('medInstruction').value.trim();
+
+      if (!medId) return;
+      const med = inventory.find(m => m.id === medId);
+      if (!med) return;
+
+      if (!qty || qty <= 0) {
+        showToast('กรุณาระบุจำนวนยาที่ถูกต้อง', true);
+        return;
+      }
+
+      const existingInRx = currentRxList.find(item => item.id === medId);
+      const totalReq = (existingInRx ? existingInRx.qty : 0) + qty;
+
+      if (totalReq > med.stock) {
+        showToast(`ยา "${med.name}" ในคลังมีเพียง ${med.stock} ${med.unit} ไม่พอจ่าย`, true);
+        return;
+      }
+
+      if (existingInRx) {
+        existingInRx.qty += qty;
+        if (instruction) existingInRx.instruction = instruction;
+      } else {
+        currentRxList.push({
+          id: med.id,
+          name: med.name,
+          type: med.type,
+          qty: qty,
+          unit: med.unit,
+          instruction: instruction || med.defaultInstruction,
+          thaiIcd: med.thaiIcd || ''
+        });
+      }
+
+      // Auto Thai ICD-10 Trigger
+      syncThaiTraditionalDx();
+
+      // Reset
+      document.getElementById('medSelect').value = '';
+      handleMedSelectChange();
+      renderRxTable();
+      lucide.createIcons();
+      showToast(`เพิ่ม "${med.name}" เข้าใบสั่งยาแล้ว`);
+    }
+
+    function removeMedFromRx(index) {
+      currentRxList.splice(index, 1);
+      syncThaiTraditionalDx();
+      renderRxTable();
+      lucide.createIcons();
+    }
+
+    function syncThaiTraditionalDx() {
+      const herbItems = currentRxList.filter(item => item.type === 'herb' && item.thaiIcd);
+      const dxThaiInput = document.getElementById('dxThai');
+      const badge = document.getElementById('herbAutoBadge');
+
+      if (herbItems.length > 0) {
+        const codes = [...new Set(herbItems.map(item => item.thaiIcd))];
+        dxThaiInput.value = codes.join(' | ');
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function renderRxTable() {
+      const tbody = document.getElementById('rxTableBody');
+      const countLabel = document.getElementById('rxCountLabel');
+      countLabel.innerText = `${currentRxList.length} รายการ`;
+
+      if (currentRxList.length === 0) {
+        tbody.innerHTML = `
+          <tr id="emptyRxRow">
+            <td colspan="4" class="p-6 text-center text-slate-400">ยังไม่มีรายการยาที่สั่งจ่าย</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = currentRxList.map((item, index) => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-2.5 font-medium">
+            <div class="flex items-center gap-1.5">
+              ${item.type === 'herb' ? '<span class="text-emerald-600 font-bold">🌿</span>' : '<span class="text-blue-500 font-bold">💊</span>'}
+              <div>
+                <span>${item.name}</span>
+                ${item.thaiIcd ? `<div class="text-[10px] text-emerald-700">${item.thaiIcd}</div>` : ''}
+              </div>
+            </div>
+          </td>
+          <td class="p-2.5 text-slate-600 max-w-[150px] truncate" title="${item.instruction}">${item.instruction}</td>
+          <td class="p-2.5 text-center font-bold text-slate-800">${item.qty} ${item.unit}</td>
+          <td class="p-2.5 text-center">
+            <button type="button" onclick="removeMedFromRx(${index})" class="text-rose-500 hover:text-rose-700 p-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // -------------------------------------------------------------
+    // Save Visit & Real-Time Stock Deduction
+    // -------------------------------------------------------------
+    function handleSaveVisit() {
+      const dateTime = document.getElementById('visitDateTime').value;
+      const cid = document.getElementById('citizenId').value.trim();
+      const name = document.getElementById('patientName').value.trim();
+      const age = document.getElementById('patientAge').value;
+      const gender = document.getElementById('patientGender').value;
+
+      // Vital Signs
+      const weight = document.getElementById('vsWeight').value;
+      const height = document.getElementById('vsHeight').value;
+      const bmi = document.getElementById('vsBmi').value;
+      const sbp = document.getElementById('vsSbp').value;
+      const dbp = document.getElementById('vsDbp').value;
+      const pulse = document.getElementById('vsPulse').value;
+      const rr = document.getElementById('vsRr').value;
+      const waist = document.getElementById('vsWaist').value;
+
+      // History & Dx
+      const cc = document.getElementById('cc').value.trim();
+      const hi = document.getElementById('hi').value.trim();
+      const pi = document.getElementById('pi').value.trim();
+      const dxModern = document.getElementById('dxModern').value.trim();
+      const dxThai = document.getElementById('dxThai').value.trim();
+
+      if (!cid || cid.length !== 13) {
+        showToast('กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก', true);
+        return;
+      }
+
+      // Check stock sufficiency
+      for (const rx of currentRxList) {
+        const item = inventory.find(m => m.id === rx.id);
+        if (!item || item.stock < rx.qty) {
+          showToast(`ยา ${rx.name} ไม่เพียงพอในสต็อก (เหลือ ${item ? item.stock : 0})`, true);
+          return;
+        }
+      }
+
+      // 1. Deduct Stock
+      currentRxList.forEach(rx => {
+        const item = inventory.find(m => m.id === rx.id);
+        if (item) item.stock -= rx.qty;
+      });
+      saveInventory();
+
+      // 2. Save / Update Patient Record
+      patients[cid] = {
+        citizenId: cid,
+        name: name,
+        age: age,
+        gender: gender,
+        hi: hi,
+        weight: weight,
+        height: height,
+        waist: waist,
+        updatedAt: new Date().toISOString()
+      };
+      savePatients();
+
+      // 3. Save Visit
+      const visitRecord = {
+        id: 'VIS-' + Date.now(),
+        dateTime: dateTime,
+        citizenId: cid,
+        name: name,
+        age: age,
+        gender: gender,
+        vitalSigns: {
+          weight, height, bmi, sbp, dbp, pulse, rr, waist
+        },
+        cc: cc,
+        hi: hi,
+        pi: pi,
+        dxModern: dxModern,
+        dxThai: dxThai,
+        prescriptions: [...currentRxList],
+        recordedBy: currentUser ? `${currentUser.name} (${currentUser.position})` : 'ไม่ระบุ',
+        timestamp: new Date().toISOString()
+      };
+
+      visits.unshift(visitRecord);
+      saveVisits();
+
+      // 4. Reset Form
+      document.getElementById('visitForm').reset();
+      resetVisitDateTime();
+      currentRxList = [];
+      renderRxTable();
+      populateMedSelect();
+      renderInventoryTable();
+      renderHistoryTable();
+
+      document.getElementById('vsBmi').value = '';
+      document.getElementById('bmiTag').innerText = 'รอข้อมูล';
+      document.getElementById('bmiTag').className = 'text-[10px] px-1.5 py-1 rounded-lg bg-slate-200 text-slate-600 font-semibold';
+      document.getElementById('bpAlert').innerText = 'mmHg';
+      document.getElementById('bpAlert').className = 'text-[10px] text-slate-500 font-medium mt-1 truncate';
+
+      document.getElementById('herbAutoBadge').classList.add('hidden');
+      document.getElementById('cidSearchStatus').innerHTML = '<i data-lucide="search" class="w-4 h-4 text-slate-400"></i>';
+      document.getElementById('cidHelperText').innerText = 'หากเคยมีประวัติ ระบบจะดึงชื่อ สัญญาณชีพเก่า และประวัติโรคเดิมขึ้นมาให้อัตโนมัติ';
+      document.getElementById('cidHelperText').className = 'text-[11px] text-slate-500 mt-1';
+
+      showToast('บันทึกการตรวจ สัญญาณชีพ และตัดสต็อกยาเรียบร้อย!');
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // Inventory Management (Role Guarded)
+    // -------------------------------------------------------------
+    function renderInventoryTable() {
+      const tbody = document.getElementById('inventoryTableBody');
+      const search = (document.getElementById('inventorySearch')?.value || '').toLowerCase();
+      const typeFilter = document.getElementById('inventoryTypeFilter')?.value || 'all';
+      const isAdmin = currentUser && currentUser.role === 'admin';
+
+      let filtered = inventory.filter(med => {
+        const matchSearch = med.name.toLowerCase().includes(search) || med.id.toLowerCase().includes(search) || (med.thaiIcd && med.thaiIcd.toLowerCase().includes(search));
+        let matchType = true;
+        if (typeFilter === 'modern') matchType = med.type === 'modern';
+        if (typeFilter === 'herb') matchType = med.type === 'herb';
+        if (typeFilter === 'low') matchType = med.stock <= 20;
+        return matchSearch && matchType;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">ไม่พบรายการยาที่ตรงกับเงื่อนไข</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(med => {
+        const isLow = med.stock <= 20;
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="p-3 font-mono font-medium text-slate-500">${med.id}</td>
+            <td class="p-3 font-semibold text-slate-800">
+              <div class="flex items-center gap-1.5">
+                ${med.type === 'herb' ? '<span class="text-emerald-600 font-bold">🌿</span>' : '<span class="text-blue-500 font-bold">💊</span>'}
+                <span>${med.name}</span>
+              </div>
+            </td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${med.type === 'herb' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-blue-100 text-blue-800 border border-blue-200'}">
+                ${med.type === 'herb' ? 'สมุนไพร / แผนไทย' : 'แผนปัจจุบัน'}
+              </span>
+            </td>
+            <td class="p-3 max-w-[220px] truncate text-slate-600" title="${med.thaiIcd || '-'}">
+              ${med.thaiIcd || '<span class="text-slate-300">-</span>'}
+            </td>
+            <td class="p-3 text-center">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${isLow ? 'bg-rose-100 text-rose-700 border border-rose-300' : 'bg-slate-100 text-slate-800'}">
+                ${med.stock}
+              </span>
+            </td>
+            <td class="p-3 text-slate-600">${med.unit}</td>
+            <td class="p-3 text-center">
+              ${isAdmin ? `
+                <button onclick="openRestockModal('${med.id}')" class="px-3 py-1 bg-medical-50 hover:bg-medical-100 text-medical-700 border border-medical-200 rounded-lg text-xs font-semibold flex items-center gap-1 mx-auto transition">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> เติมยา
+                </button>
+              ` : `
+                <span class="text-[11px] text-slate-400 italic">เฉพาะ Admin</span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    let activeRestockMedId = null;
+
+    function openRestockModal(medId) {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถเติมสต็อกยาได้', true);
+        return;
+      }
+      const med = inventory.find(m => m.id === medId);
+      if (!med) return;
+      activeRestockMedId = medId;
+      document.getElementById('restockMedName').innerText = `${med.name} (${med.type === 'herb' ? 'สมุนไพร' : 'แผนปัจจุบัน'})`;
+      document.getElementById('restockCurrentStock').innerText = `คงเหลือปัจจุบัน: ${med.stock} ${med.unit}`;
+      document.getElementById('restockAddAmount').value = 50;
+      document.getElementById('restockModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeRestockModal() {
+      document.getElementById('restockModal').classList.add('hidden');
+      activeRestockMedId = null;
+    }
+
+    function confirmRestock() {
+      if (!currentUser || currentUser.role !== 'admin') return;
+
+      const amount = parseInt(document.getElementById('restockAddAmount').value, 10);
+      if (!amount || amount <= 0 || !activeRestockMedId) {
+        showToast('กรุณากรอกจำนวนที่ถูกต้อง', true);
+        return;
+      }
+
+      const med = inventory.find(m => m.id === activeRestockMedId);
+      if (med) {
+        med.stock += amount;
+        saveInventory();
+        populateMedSelect();
+        renderInventoryTable();
+        closeRestockModal();
+        showToast(`เติมสต็อก "${med.name}" เพิ่ม ${amount} ${med.unit} สำเร็จ`);
+      }
+    }
+
+    function updateLowStockBadge() {
+      const count = inventory.filter(m => m.stock <= 20).length;
+      const badge = document.getElementById('lowStockBadge');
+      if (count > 0) {
+        badge.innerText = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function resetDefaultStock() {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      if (confirm('คุณต้องการรีเซ็ตคลังยากลับเป็นค่าเริ่มต้นใช่หรือไม่?')) {
+        inventory = JSON.parse(JSON.stringify(DEFAULT_INVENTORY));
+        saveInventory();
+        populateMedSelect();
+        renderInventoryTable();
+        showToast('รีเซ็ตคลังยาตั้งต้นเรียบร้อย');
+      }
+    }
+
+    function openAddMedModal() {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถเพิ่มยาใหม่ได้', true);
+        return;
+      }
+      document.getElementById('addMedModal').classList.remove('hidden');
+      toggleThaiICDField(document.getElementById('newMedType').value);
+      lucide.createIcons();
+    }
+
+    function closeAddMedModal() {
+      document.getElementById('addMedModal').classList.add('hidden');
+    }
+
+    function toggleThaiICDField(type) {
+      const wrapper = document.getElementById('newMedThaiICDWrapper');
+      if (type === 'herb') {
+        wrapper.classList.remove('hidden');
+      } else {
+        wrapper.classList.add('hidden');
+      }
+    }
+
+    function saveNewMedicine() {
+      if (!currentUser || currentUser.role !== 'admin') return;
+
+      const name = document.getElementById('newMedName').value.trim();
+      const type = document.getElementById('newMedType').value;
+      const unit = document.getElementById('newMedUnit').value.trim() || 'หน่วย';
+      const stock = parseInt(document.getElementById('newMedStock').value, 10) || 0;
+      const thaiIcd = document.getElementById('newMedThaiICD').value.trim();
+
+      if (!name) {
+        showToast('กรุณากรอกชื่อยา', true);
+        return;
+      }
+
+      const newId = (type === 'herb' ? 'HERB' : 'MED') + String(Date.now()).slice(-4);
+      inventory.push({
+        id: newId,
+        name: name,
+        type: type,
+        unit: unit,
+        stock: stock,
+        defaultInstruction: 'รับประทานตามแพทย์/เจ้าหน้าที่สั่ง',
+        thaiIcd: type === 'herb' ? thaiIcd : ''
+      });
+
+      saveInventory();
+      populateMedSelect();
+      renderInventoryTable();
+      closeAddMedModal();
+      document.getElementById('newMedName').value = '';
+      document.getElementById('newMedThaiICD').value = '';
+      showToast(`เพิ่มยา "${name}" เข้าสู่ทะเบียนคลังยาแล้ว`);
+    }
+
+    // -------------------------------------------------------------
+    // History & Export Logic
+    // -------------------------------------------------------------
+    function renderHistoryTable() {
+      const tbody = document.getElementById('historyTableBody');
+      const search = (document.getElementById('historySearch')?.value || '').toLowerCase();
+      const isAdmin = currentUser && currentUser.role === 'admin';
+
+      const filtered = visits.filter(v => {
+        return v.citizenId.includes(search) || v.name.toLowerCase().includes(search);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">ยังไม่มีประวัติการตรวจรักษา</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(v => {
+        const rxSummary = v.prescriptions.map(p => `${p.name} (${p.qty} ${p.unit})`).join(', ');
+        const vs = v.vitalSigns || {};
+        const bpStr = (vs.sbp && vs.dbp) ? `${vs.sbp}/${vs.dbp}` : '-';
+        const prStr = vs.pulse ? `${vs.pulse} bpm` : '-';
+        const bmiStr = vs.bmi ? `BMI: ${vs.bmi}` : '-';
+
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="p-3 font-medium text-slate-600">${v.dateTime || v.date}</td>
+            <td class="p-3 font-mono text-slate-800">${v.citizenId}</td>
+            <td class="p-3 font-bold text-slate-800">${v.name} (${v.age || '-'} ปี / ${v.gender})</td>
+            <td class="p-3">
+              <div class="text-xs font-semibold text-slate-700">BP: <span class="font-mono text-medical-700">${bpStr}</span></div>
+              <div class="text-[11px] text-slate-500">PR: ${prStr} | ${bmiStr}</div>
+            </td>
+            <td class="p-3 max-w-[180px] truncate" title="${v.cc}">${v.cc}</td>
+            <td class="p-3 text-blue-700 font-medium max-w-[160px] truncate" title="${v.dxModern}">${v.dxModern}</td>
+            <td class="p-3 text-emerald-700 font-medium max-w-[160px] truncate" title="${v.dxThai || '-'}">${v.dxThai || '-'}</td>
+            <td class="p-3 max-w-[180px] truncate text-slate-600" title="${rxSummary}">${rxSummary || 'ไม่มียา'}</td>
+            <td class="p-3 text-center text-slate-500 text-[11px]">${v.recordedBy || '-'}</td>
+            <td class="p-3 text-center admin-only ${isAdmin ? '' : 'hidden'}">
+              <button onclick="deleteVisit('${v.id}')" class="text-rose-500 hover:text-rose-700 p-1" title="ลบเรคคอร์ดนี้ (Admin)">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function deleteVisit(visitId) {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถลบข้อมูลตรวจได้', true);
+        return;
+      }
+      if (confirm('คุณต้องการลบประวัติการตรวจนี้ใช่หรือไม่? (สต็อกยาจะไม่ถูกย้อนกลับ)')) {
+        visits = visits.filter(v => v.id !== visitId);
+        saveVisits();
+        renderHistoryTable();
+        showToast('ลบประวัติการตรวจเรียบร้อย');
+      }
+    }
+
+    function exportToCSV() {
+      if (visits.length === 0) {
+        showToast('ไม่มีข้อมูลการตรวจรักษาที่จะส่งออก', true);
+        return;
+      }
+
+      let csvContent = '\uFEFF'; // BOM for Thai Excel
+      csvContent += 'รหัสรับบริการ,วันเวลา,เลขบัตรประชาชน,ชื่อผู้ป่วย,อายุ,เพศ,น้ำหนัก(กก),ส่วนสูง(ซม),BMI,ความดันบน(SBP),ความดันล่าง(DBP),ชีพจร(PR),อัตราหายใจ(RR),รอบเอว(ซม),อาการสำคัญ(CC),ประวัติอดีต(HI),ประวัติปัจจุบัน(PI),Dx แผนปัจจุบัน,Dx แผนไทย(ICD-10 TM),รายการยาที่จ่าย,ผู้ตรวจ\n';
+
+      visits.forEach(v => {
+        const rxStr = v.prescriptions.map(p => `${p.name} ${p.qty} ${p.unit}`).join('; ');
+        const vs = v.vitalSigns || {};
+        const row = [
+          v.id,
+          v.dateTime || v.date,
+          `="${v.citizenId}"`,
+          `"${(v.name || '').replace(/"/g, '""')}"`,
+          v.age || '',
+          v.gender || '',
+          vs.weight || '',
+          vs.height || '',
+          vs.bmi || '',
+          vs.sbp || '',
+          vs.dbp || '',
+          vs.pulse || '',
+          vs.rr || '',
+          vs.waist || '',
+          `"${(v.cc || '').replace(/"/g, '""')}"`,
+          `"${(v.hi || '').replace(/"/g, '""')}"`,
+          `"${(v.pi || '').replace(/"/g, '""')}"`,
+          `"${(v.dxModern || '').replace(/"/g, '""')}"`,
+          `"${(v.dxThai || '').replace(/"/g, '""')}"`,
+          `"${rxStr.replace(/"/g, '""')}"`,
+          `"${(v.recordedBy || '').replace(/"/g, '""')}"`
+        ];
+        csvContent += row.join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `PangPoLoh_Visits_Vitals_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('ส่งออกไฟล์ CSV สัญญาณชีพและเวชระเบียนเรียบร้อย');
+    }
+
+    function exportJSONBackup() {
+      const backupData = {
+        app: 'PangPoLoh Health',
+        version: '2.0',
+        exportedAt: new Date().toISOString(),
+        inventory: inventory,
+        visits: visits,
+        patients: patients,
+        users: users
+      };
+
+      const jsonStr = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `PangPoLoh_FullBackup_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('สำรองข้อมูลระบบ JSON ลงเครื่องสำเร็จ');
+    }
+
+    function restoreJSONData(event) {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('เฉพาะ Admin เท่านั้นที่สามารถนำเข้ากู้คืนฐานข้อมูลได้', true);
+        return;
+      }
+
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.inventory && Array.isArray(data.inventory)) {
+            inventory = data.inventory;
+            saveInventory();
+          }
+          if (data.visits && Array.isArray(data.visits)) {
+            visits = data.visits;
+            saveVisits();
+          }
+          if (data.patients && typeof data.patients === 'object') {
+            patients = data.patients;
+            savePatients();
+          }
+          if (data.users && Array.isArray(data.users)) {
+            users = data.users;
+            saveUsers();
+          }
+          populateMedSelect();
+          renderInventoryTable();
+          renderHistoryTable();
+          renderUsersTable();
+          showToast('กู้คืนฐานข้อมูลสำเร็จเรียบร้อย!');
+        } catch (err) {
+          showToast('ไฟล์ JSON ไม่ถูกต้องหรือไม่สมบูรณ์', true);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // -------------------------------------------------------------
+    // User Management Functions (Admin Only)
+    // -------------------------------------------------------------
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      const isAdmin = currentUser && currentUser.role === 'admin';
+
+      if (!isAdmin) return;
+
+      tbody.innerHTML = users.map(u => `
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+          <td class="p-3 font-mono font-bold text-slate-800">${u.username}</td>
+          <td class="p-3 font-medium text-slate-800">${u.name}</td>
+          <td class="p-3 text-slate-600">${u.position}</td>
+          <td class="p-3 text-center">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${u.role === 'admin' ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-blue-100 text-blue-800 border border-blue-200'}">
+              ${u.role === 'admin' ? '👑 Admin (ผู้ดูแล)' : '🩺 Staff (ทั่วไป)'}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            <span class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ใช้งานได้
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            ${u.username === 'admin' ? `
+              <span class="text-slate-300 text-xs italic">ระบบหลัก</span>
+            ` : `
+              <button onclick="deleteUser('${u.username}')" class="text-rose-500 hover:text-rose-700 p-1" title="ลบผู้ใช้">
+                <i data-lucide="user-x" class="w-4 h-4"></i>
+              </button>
+            `}
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openAddUserModal() {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถเพิ่มผู้ใช้ได้', true);
+        return;
+      }
+      document.getElementById('addUserModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeAddUserModal() {
+      document.getElementById('addUserModal').classList.add('hidden');
+    }
+
+    function saveNewUser() {
+      if (!currentUser || currentUser.role !== 'admin') return;
+
+      const username = document.getElementById('newUsername').value.trim();
+      const pass = document.getElementById('newUserPass').value.trim();
+      const name = document.getElementById('newFullName').value.trim();
+      const position = document.getElementById('newPosition').value.trim();
+      const role = document.getElementById('newUserRole').value;
+
+      if (!username || !pass || !name) {
+        showToast('กรุณากรอก Username, Password และชื่อผู้ใช้งานให้ครบ', true);
+        return;
+      }
+
+      if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+        showToast('Username นี้มีอยู่ในระบบแล้ว', true);
+        return;
+      }
+
+      users.push({
+        username: username,
+        pass: pass,
+        name: name,
+        position: position || 'เจ้าหน้าที่สาธารณสุข',
+        role: role
+      });
+
+      saveUsers();
+      renderUsersTable();
+      closeAddUserModal();
+      document.getElementById('newUsername').value = '';
+      document.getElementById('newUserPass').value = '';
+      document.getElementById('newFullName').value = '';
+      document.getElementById('newPosition').value = '';
+      showToast(`เพิ่มผู้ใช้งาน "${name}" สำเร็จ`);
+    }
+
+    function deleteUser(username) {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      if (confirm(`คุณต้องการลบผู้ใช้งาน "${username}" ใช่หรือไม่?`)) {
+        users = users.filter(u => u.username !== username);
+        saveUsers();
+        renderUsersTable();
+        showToast('ลบผู้ใช้งานเรียบร้อย');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // App Initialization
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      initData();
+    });
+  </script>
+</body>
+</html>
