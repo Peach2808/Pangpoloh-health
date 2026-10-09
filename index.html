@@ -2427,4 +2427,110 @@
         alert('ยังไม่มีข้อมูลการตรวจสำหรับการส่งออก');
         return;
       }
-      let csv = '\uFEFFวันที่,เลข13หลัก,ชื่อสกุล,น้ำหนัก,ส่วนสูง,
+      let csv = '\uFEFFวันที่,เลข13หลัก,ชื่อสกุล,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,CC,HI,Dxแผนปัจจุบัน,Dxแผนไทย,รายการยาและวิธีรับประทาน,ผู้ตรวจ\n';
+      visits.forEach(v => {
+        const rxText = v.rx.map(r => `${r.name} x${r.qty} (${r.sig||''}) [${r.warning||''}]`).join('; ');
+        const vit = v.vitals || {};
+        csv += `"${v.date}","${v.cid}","${v.name}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${v.cc}","${v.hi}","${v.dxModern}","${v.dxThai}","${rxText}","${v.provider}"\n`;
+      });
+      downloadFile(csv, `PangPoLoh_Visits_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+    };
+
+    window.exportPatientsToCSV = function() {
+      if (patients.length === 0) {
+        alert('ไม่มีข้อมูลรายชื่อผู้ป่วย');
+        return;
+      }
+      let csv = '\uFEFFcid,name,gender,dob,age,address,allergy,chronic\n';
+      patients.forEach(p => {
+        csv += `"${p.cid}","${p.name}","${p.gender||''}","${p.dob||''}","${p.age||''}","${p.address||''}","${p.allergy||''}","${p.chronic||''}"\n`;
+      });
+      downloadFile(csv, `PangPoLoh_Patients_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+    };
+
+    window.backupAllDataJSON = function() {
+      const fullBackup = {
+        app: 'PangPoLoh Health',
+        timestamp: new Date().toISOString(),
+        patients: patients,
+        inventory: inventory,
+        visits: visits,
+        users: users
+      };
+      const json = JSON.stringify(fullBackup, null, 2);
+      downloadFile(json, `PangPoLoh_FullBackup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+    };
+
+    function downloadFile(content, fileName, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ================= จัดการผู้ใช้งาน =================
+    function renderUsersTable() {
+      const tbody = document.getElementById('users-table-body');
+      tbody.innerHTML = '';
+      users.forEach((u, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50';
+        tr.innerHTML = `
+          <td class="p-3 font-mono font-medium text-slate-800">${u.username}</td>
+          <td class="p-3 text-slate-700">${u.fullname}</td>
+          <td class="p-3 text-center">
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${u.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+              ${u.role.toUpperCase()}
+            </span>
+          </td>
+          <td class="p-3 text-center">
+            ${u.username !== 'admin' ? `
+              <button onclick="deleteUser(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+            ` : '<span class="text-slate-400 text-xs">เริ่มต้น</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.openAddUserModal = function() {
+      document.getElementById('form-user').reset();
+      document.getElementById('modal-user').classList.remove('hidden');
+    };
+
+    window.closeUserModal = function() {
+      document.getElementById('modal-user').classList.add('hidden');
+    };
+
+    document.getElementById('form-user').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const u = document.getElementById('m-user-username').value.trim();
+      if (users.find(x => x.username === u)) {
+        alert('ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว');
+        return;
+      }
+      users.push({
+        id: 'U' + String(users.length + 1).padStart(2, '0'),
+        username: u,
+        password: document.getElementById('m-user-password').value.trim(),
+        fullname: document.getElementById('m-user-fullname').value.trim(),
+        role: document.getElementById('m-user-role').value
+      });
+      saveStorage('users', users);
+      renderUsersTable();
+      closeUserModal();
+    });
+
+    window.deleteUser = function(index) {
+      if (confirm('ต้องการลบผู้ใช้งานนี้ใช่หรือไม่?')) {
+        users.splice(index, 1);
+        saveStorage('users', users);
+        renderUsersTable();
+      }
+    };
+  </script>
+</body>
+</html>
