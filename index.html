@@ -1,4 +1,4 @@
-<!-- index.html (PangPoLoh Health - Complete with Custom Logo) -->
+<!-- index.html (PangPoLoh Health - Complete with Family Folder & MY PCU Export) -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -50,7 +50,6 @@
   <!-- ================= AUTH CONTAINER ================= -->
   <div id="auth-container" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-800 to-teal-950 p-4">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-emerald-100 text-center">
-      <!-- โลโก้หน้าล็อกอิน -->
       <img src="logo.jpg" alt="PangPoLoh Health Logo" class="w-24 h-24 mx-auto mb-3 object-contain rounded-3xl shadow-md border border-emerald-100" onerror="this.onerror=null; this.src='https://via.placeholder.com/96?text=PangPoLoh';">
       <h1 class="text-2xl font-bold text-slate-800">PangPoLoh Health</h1>
       <p class="text-emerald-700 font-medium text-xs mt-1 mb-8">ระบบเวชระเบียนชุมชนและคลังยาบนพื้นที่สูง</p>
@@ -60,14 +59,14 @@
           <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อผู้ใช้งาน (Username)</label>
           <div class="relative">
             <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-            <input type="text" id="login-username" required placeholder="admin หรือ user" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+            <input type="text" id="login-username" required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="admin หรือ user" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
           </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">รหัสผ่าน (Password)</label>
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-            <input type="password" id="login-password" required placeholder="admin123 หรือ user123" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+            <input type="password" id="login-password" required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="admin123 หรือ user123" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
           </div>
         </div>
         <div id="login-error" class="hidden text-xs text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200">
@@ -85,7 +84,6 @@
     <!-- Header -->
     <header class="bg-emerald-700 text-white shadow-md sticky top-0 z-40">
       <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-4">
-        <!-- โลโก้แถบ Header ด้านบน -->
         <div class="flex items-center gap-3">
           <img src="logo.jpg" alt="Logo" class="w-10 h-10 object-contain rounded-xl shadow border border-emerald-500 bg-white" onerror="this.onerror=null; this.src='https://via.placeholder.com/40?text=PH';">
           <div>
@@ -152,6 +150,26 @@
               </div>
             </div>
 
+            <!-- กล่องลัด: ค้นหาด่วนด้วยบ้านเลขที่ (Family Folder) -->
+            <div class="mb-5 p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 border border-emerald-200 rounded-2xl shadow-sm">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                <label class="text-xs font-bold text-emerald-900 flex items-center gap-2">
+                  <i class="fa-solid fa-house-chimney-user text-emerald-600 text-sm"></i>
+                  ค้นหาด่วนตามบ้านเลขที่ (ไม่ต้องพิมพ์ชื่อ/เลขบัตร)
+                </label>
+                <span class="text-[11px] text-emerald-700">พิมพ์บ้านเลขที่แล้วแตะเลือกชื่อคนในบ้านได้ทันที</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                <div class="sm:col-span-4 relative">
+                  <input type="text" id="quick-house-no" list="house-number-list" placeholder="พิมพ์บ้านเลขที่ เช่น 12, 12/1..." class="w-full px-3 py-2 border border-emerald-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                  <datalist id="house-number-list"></datalist>
+                </div>
+                <div class="sm:col-span-8 flex flex-wrap gap-1.5 items-center min-h-[38px] p-1.5 bg-white/70 border border-emerald-200/80 rounded-xl" id="family-members-container">
+                  <span class="text-xs text-slate-400 italic px-2">รายชื่อสมาชิกในบ้านจะปรากฏที่นี่...</span>
+                </div>
+              </div>
+            </div>
+
             <!-- กล่องแจ้งเตือนการแพ้ยา -->
             <div id="allergy-banner" class="hidden mb-4 p-3 bg-rose-50 border-2 border-rose-500 rounded-xl text-rose-800 allergy-alert">
               <div class="flex items-center gap-2 font-bold text-sm">
@@ -201,12 +219,17 @@
               </div>
             </div>
 
-            <!-- สัญญาณชีพ -->
+            <!-- สัญญาณชีพ (เพิ่ม อุณหภูมิร่างกาย BT สำหรับ MY PCU) -->
             <div class="mt-4 pt-4 border-t border-slate-100">
-              <h3 class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1">
-                <i class="fa-solid fa-heart-pulse text-rose-500"></i> สัญญาณชีพและข้อมูลร่างกาย
+              <h3 class="text-xs font-bold text-slate-700 mb-2 flex items-center justify-between">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-heart-pulse text-rose-500"></i> สัญญาณชีพและข้อมูลร่างกาย</span>
+                <span class="text-[11px] text-emerald-700 font-normal">* มีช่องอุณหภูมิร่างกาย (BT) รองรับคีย์ MY PCU</span>
               </h3>
-              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                <div>
+                  <label class="block text-[11px] text-slate-500">อุณหภูมิ (°C)</label>
+                  <input type="number" step="0.1" id="vitals-temp" placeholder="36.5" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm text-center font-medium text-amber-700">
+                </div>
                 <div>
                   <label class="block text-[11px] text-slate-500">น้ำหนัก (กก.)</label>
                   <input type="number" step="0.1" id="vitals-weight" placeholder="55.0" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-sm text-center">
@@ -279,7 +302,7 @@
                 </label>
                 <input type="text" id="dx-thai" placeholder="รหัสจะขึ้นอัตโนมัติเมื่อเลือกจ่ายยาสมุนไพร" class="w-full px-3 py-2 border border-emerald-300 rounded-xl text-sm font-semibold text-emerald-900 bg-white">
                 <p class="text-[11px] text-emerald-700 mt-1.5 flex items-center gap-1">
-                  <i class="fa-solid fa-circle-info"></i> ระบบตรวจจับยาสมุนไพรและใส่รหัสแผนไทยให้อัตโนมัติ
+                  <i class="fa-solid fa-circle-info"></i> ระบบตรวจจับยาสมุนไพรและใส่รหัสแผนไทยให้อัตโนมัติ สำหรับเคลม สปสช.
                 </p>
               </div>
             </div>
@@ -388,7 +411,7 @@
               <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                 <i class="fa-solid fa-address-book text-emerald-600"></i> ทะเบียนประวัติผู้ป่วยในพื้นที่
               </h2>
-              <p class="text-xs text-slate-500 mt-0.5">ค้นหาชื่อ ประวัติเดิม วันเกิด/อายุ โรคประจำตัว หรือนำเข้าฐานข้อมูลจากไฟล์ Excel/CSV</p>
+              <p class="text-xs text-slate-500 mt-0.5">ค้นหาชื่อ บ้านเลขที่ ประวัติเดิม วันเกิด/อายุ โรคประจำตัว หรือนำเข้าฐานข้อมูลจากไฟล์ CSV</p>
             </div>
             <div class="flex flex-wrap gap-2">
               <input type="file" id="patient-file-input" accept=".csv" class="hidden" onchange="handlePatientCSVUpload(event)">
@@ -410,7 +433,7 @@
           <div class="mb-4">
             <div class="relative">
               <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-              <input type="text" id="patient-search-input" oninput="renderPatientsTable()" placeholder="พิมพ์ชื่อ-สกุล หรือเลขบัตร 13 หลัก เพื่อค้นหาด่วน..." class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <input type="text" id="patient-search-input" oninput="renderPatientsTable()" placeholder="พิมพ์ชื่อ-สกุล, บ้านเลขที่ หรือเลขบัตร 13 หลัก เพื่อค้นหาด่วน..." class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
             </div>
           </div>
 
@@ -418,11 +441,12 @@
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-100 text-slate-600 uppercase font-semibold">
                 <tr>
+                  <th class="p-3">บ้านเลขที่</th>
                   <th class="p-3">เลข 13 หลัก</th>
                   <th class="p-3">ชื่อ - นามสกุล</th>
                   <th class="p-3 text-center">เพศ</th>
                   <th class="p-3 text-center">วันเกิด / อายุ</th>
-                  <th class="p-3">ที่อยู่ / คุ้มบ้าน</th>
+                  <th class="p-3">สิทธิรักษา</th>
                   <th class="p-3">ประวัติแพ้ยา</th>
                   <th class="p-3">โรคประจำตัว</th>
                   <th class="p-3 text-center">การจัดการ</th>
@@ -599,8 +623,11 @@
               <p class="text-xs text-slate-500 mt-0.5">รวมประวัติการตรวจ สัญญาณชีพ และการสั่งจ่ายยาพร้อมวิธีรับประทาน สามารถพิมพ์ OPD Card ย้อนหลังได้ตลอดเวลา</p>
             </div>
             <div class="flex flex-wrap gap-2">
+              <button onclick="exportToMYPCU_CSV()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow" title="ส่งออกคอลัมน์เรียงตามหน้าจอโปรแกรม MY PCU เพื่อนำไปคีย์เบิกจ่าย สปสช.">
+                <i class="fa-solid fa-file-invoice text-amber-300"></i> ส่งออกไฟล์คีย์ MY PCU (CSV)
+              </button>
               <button onclick="exportToCSV()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-file-excel"></i> ส่งออกรายงาน Excel (CSV)
+                <i class="fa-solid fa-file-excel"></i> ส่งออกรายงานทั่วไป (CSV)
               </button>
               <button onclick="backupAllDataJSON()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium flex items-center gap-1">
                 <i class="fa-solid fa-download"></i> สำรองฐานข้อมูล (JSON)
@@ -733,14 +760,16 @@
           <div><strong>เลขบัตรประชาชน:</strong> <span id="opd-cid" class="font-mono">-</span></div>
           <div><strong>ชื่อ - สกุล:</strong> <span id="opd-name" class="font-bold text-sm">-</span></div>
           <div><strong>เพศ / อายุ:</strong> <span id="opd-gender-age">-</span></div>
-          <div class="col-span-2"><strong>ที่อยู่:</strong> <span id="opd-address">-</span></div>
+          <div><strong>บ้านเลขที่ / ที่อยู่:</strong> <span id="opd-address">-</span></div>
+          <div><strong>สิทธิการรักษา:</strong> <span id="opd-privilege" class="font-semibold text-emerald-800">บัตรทอง (UCS)</span></div>
           <div class="col-span-2 text-rose-700 font-bold"><strong>ประวัติแพ้ยา:</strong> <span id="opd-allergy">ปฏิเสธการแพ้ยา</span></div>
           <div class="col-span-2"><strong>โรคประจำตัวเดิม:</strong> <span id="opd-chronic">-</span></div>
         </div>
 
         <div class="mb-4 border-b border-slate-200 pb-3">
           <h4 class="font-bold mb-1 text-[11px] uppercase tracking-wider text-slate-700">สัญญาณชีพ (Vital Signs):</h4>
-          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center bg-slate-50 p-2 rounded border border-slate-200">
+          <div class="grid grid-cols-3 sm:grid-cols-7 gap-2 text-center bg-slate-50 p-2 rounded border border-slate-200">
+            <div>อุณหภูมิ<br><strong id="opd-temp">-</strong> °C</div>
             <div>น้ำหนัก<br><strong id="opd-wt">-</strong> กก.</div>
             <div>ส่วนสูง<br><strong id="opd-ht">-</strong> ซม.</div>
             <div>BMI<br><strong id="opd-bmi">-</strong></div>
@@ -881,7 +910,7 @@
     </div>
   </div>
 
-  <!-- Modal 5: เพิ่มผู้ป่วย -->
+  <!-- Modal 5: เพิ่ม/แก้ไขผู้ป่วย (พร้อมช่องบ้านเลขที่ และสิทธิการรักษา) -->
   <div id="modal-patient" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -891,9 +920,15 @@
         <button onclick="closePatientModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <form id="form-add-patient" class="space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-600 mb-1">เลขประจำตัวประชาชน 13 หลัก *</label>
-          <input type="text" id="m-patient-cid" maxlength="13" required placeholder="เลข 13 หลัก" class="w-full px-3 py-2 border rounded-xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-emerald-900 mb-1">บ้านเลขที่ *</label>
+            <input type="text" id="m-patient-houseno" required placeholder="เช่น 12 หรือ 12/1" class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50/30 rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">เลขประจำตัวประชาชน 13 หลัก *</label>
+            <input type="text" id="m-patient-cid" maxlength="13" required placeholder="เลข 13 หลัก" class="w-full px-3 py-2 border rounded-xl">
+          </div>
         </div>
         <div>
           <label class="block font-semibold text-slate-600 mb-1">ชื่อ - นามสกุล *</label>
@@ -916,9 +951,21 @@
             <input type="number" id="m-patient-age" placeholder="ปี" class="w-full px-3 py-2 border rounded-xl font-bold">
           </div>
         </div>
-        <div>
-          <label class="block font-semibold text-slate-600 mb-1">ที่อยู่ / คุ้ม / หมู่บ้าน</label>
-          <input type="text" id="m-patient-address" placeholder="เช่น หมู่ 2 หย่อมบ้านปางโปโล" class="w-full px-3 py-2 border rounded-xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">สิทธิการรักษา (สำหรับ MY PCU)</label>
+            <select id="m-patient-privilege" class="w-full px-3 py-2 border rounded-xl bg-white">
+              <option value="บัตรทอง (UCS)">บัตรทอง (UCS)</option>
+              <option value="เบิกจ่ายตรง (OFC)">เบิกจ่ายตรง (OFC)</option>
+              <option value="ประกันสังคม (SSS)">ประกันสังคม (SSS)</option>
+              <option value="ชำระเงินเอง (PAY)">ชำระเงินเอง (PAY)</option>
+              <option value="บุคคลไร้สัญชาติ (ท.00/0)">บุคคลไร้สัญชาติ (ท.00/0)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 mb-1">คุ้มบ้าน / หย่อมบ้าน</label>
+            <input type="text" id="m-patient-address" placeholder="เช่น หย่อมบ้านปางโปโล หมู่ 2" class="w-full px-3 py-2 border rounded-xl">
+          </div>
         </div>
         <div>
           <label class="block font-semibold text-rose-700 mb-1">ประวัติแพ้ยา</label>
@@ -1006,7 +1053,7 @@
       <form id="form-user" class="space-y-3 text-xs">
         <div>
           <label class="block font-semibold text-slate-600 mb-1">ชื่อผู้ใช้งาน (Username) *</label>
-          <input type="text" id="m-user-username" required class="w-full px-3 py-2 border rounded-xl">
+          <input type="text" id="m-user-username" required autocapitalize="none" autocorrect="off" class="w-full px-3 py-2 border rounded-xl">
         </div>
         <div>
           <label class="block font-semibold text-slate-600 mb-1">ชื่อ-สกุล เจ้าหน้าที่ *</label>
@@ -1139,9 +1186,56 @@
       { id: 'U02', username: 'user', password: 'user123', fullname: 'เจ้าหน้าที่สาธารณสุข (Staff)', role: 'staff' }
     ];
 
+    // เพิ่มฟิลด์ houseNo และ privilege
     const DEFAULT_PATIENTS = [
-      { cid: '1509900123456', name: 'นายลี ซอพอ', gender: 'ชาย', dob: '1978-05-12', age: 48, address: 'หมู่ 2 หย่อมบ้านปางโปโล', allergy: 'Amoxicillin, Penicillin', chronic: 'ความดันโลหิตสูง' },
-      { cid: '1509900654321', name: 'นางนาหมี่ จะอือ', gender: 'หญิง', dob: '1964-11-20', age: 62, address: 'หมู่ 2 หย่อมบ้านปางโปโล', allergy: '', chronic: 'เบาหวานชนิดที่ 2' }
+      { 
+        cid: '1509900123456', 
+        name: 'นายลี ซอพอ', 
+        houseNo: '12', 
+        gender: 'ชาย', 
+        dob: '1978-05-12', 
+        age: 48, 
+        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        privilege: 'บัตรทอง (UCS)', 
+        allergy: 'Amoxicillin, Penicillin', 
+        chronic: 'ความดันโลหิตสูง' 
+      },
+      { 
+        cid: '1509900654321', 
+        name: 'นางนาหมี่ จะอือ', 
+        houseNo: '12', 
+        gender: 'หญิง', 
+        dob: '1964-11-20', 
+        age: 62, 
+        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        privilege: 'บัตรทอง (UCS)', 
+        allergy: '', 
+        chronic: 'เบาหวานชนิดที่ 2' 
+      },
+      { 
+        cid: '1509900987654', 
+        name: 'นายอาซัง ซอพอ', 
+        houseNo: '12', 
+        gender: 'ชาย', 
+        dob: '2005-08-14', 
+        age: 21, 
+        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        privilege: 'บัตรทอง (UCS)', 
+        allergy: '', 
+        chronic: 'ปฏิเสธโรคประจำตัว' 
+      },
+      { 
+        cid: '1509900112233', 
+        name: 'นายจะฟะ จะลอ', 
+        houseNo: '45/1', 
+        gender: 'ชาย', 
+        dob: '1982-01-10', 
+        age: 44, 
+        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        privilege: 'บัตรทอง (UCS)', 
+        allergy: '', 
+        chronic: 'เกาต์' 
+      }
     ];
 
     const OFFLINE_CPG = {
@@ -1184,6 +1278,7 @@
       checkSession();
       setTodayDate();
       setDefaultUsageMonth();
+      updateHouseDatalist();
     });
 
     function setTodayDate() {
@@ -1208,6 +1303,11 @@
 
       const savedPatients = localStorage.getItem(STORAGE_KEY_PREFIX + 'patients');
       patients = savedPatients ? JSON.parse(savedPatients) : [...DEFAULT_PATIENTS];
+      // อัปเดตฟิลด์บ้านเลขที่และสิทธิถ้ายังไม่มี
+      patients.forEach(p => {
+        if (!p.houseNo) p.houseNo = '12';
+        if (!p.privilege) p.privilege = 'บัตรทอง (UCS)';
+      });
 
       const savedUsers = localStorage.getItem(STORAGE_KEY_PREFIX + 'users');
       users = savedUsers ? JSON.parse(savedUsers) : [...DEFAULT_USERS];
@@ -1219,18 +1319,26 @@
     }
 
     function saveStorage(key, data) {
-      localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(data));
+      try {
+        localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(data));
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
     }
 
-    // ================= AUTHENTICATION =================
+    // ================= AUTHENTICATION (FIXED FOR IOS/IPAD) =================
     function checkSession() {
-      const session = sessionStorage.getItem(STORAGE_KEY_PREFIX + 'session');
-      if (session) {
-        currentUser = JSON.parse(session);
-        renderAppForUser();
-      } else {
-        showLoginScreen();
+      try {
+        const session = sessionStorage.getItem(STORAGE_KEY_PREFIX + 'session');
+        if (session) {
+          currentUser = JSON.parse(session);
+          renderAppForUser();
+          return;
+        }
+      } catch (e) {
+        console.warn('SessionStorage is restricted:', e);
       }
+      showLoginScreen();
     }
 
     function showLoginScreen() {
@@ -1262,17 +1370,24 @@
       renderHistoryTable();
       renderUsersTable();
       checkLowStockAlert();
+      updateHouseDatalist();
     }
 
     document.getElementById('login-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const u = document.getElementById('login-username').value.trim();
+      // แปลงชื่อผู้ใช้เป็นตัวพิมพ์เล็กเสมอเพื่อแก้ปัญหาตัวพิมพ์ใหญ่ตัวแรกบน iOS
+      const u = document.getElementById('login-username').value.trim().toLowerCase();
       const p = document.getElementById('login-password').value.trim();
-      const found = users.find(user => user.username === u && user.password === p);
+      
+      const found = users.find(user => user.username.toLowerCase() === u && user.password === p);
 
       if (found) {
         currentUser = found;
-        sessionStorage.setItem(STORAGE_KEY_PREFIX + 'session', JSON.stringify(currentUser));
+        try {
+          sessionStorage.setItem(STORAGE_KEY_PREFIX + 'session', JSON.stringify(currentUser));
+        } catch (err) {
+          console.warn('Cannot store session:', err);
+        }
         document.getElementById('login-error').classList.add('hidden');
         renderAppForUser();
       } else {
@@ -1281,7 +1396,9 @@
     });
 
     document.getElementById('btn-logout').addEventListener('click', () => {
-      sessionStorage.removeItem(STORAGE_KEY_PREFIX + 'session');
+      try {
+        sessionStorage.removeItem(STORAGE_KEY_PREFIX + 'session');
+      } catch (err) {}
       currentUser = null;
       showLoginScreen();
     });
@@ -1330,6 +1447,19 @@
       }
     };
 
+    // ================= ระบบค้นหาด่วนตามบ้านเลขที่ (FAMILY FOLDER) =================
+    function updateHouseDatalist() {
+      const datalist = document.getElementById('house-number-list');
+      if (!datalist) return;
+      datalist.innerHTML = '';
+      const houses = [...new Set(patients.map(p => p.houseNo).filter(Boolean))].sort();
+      houses.forEach(h => {
+        const opt = document.createElement('option');
+        opt.value = h;
+        datalist.appendChild(opt);
+      });
+    }
+
     function initEventListeners() {
       const weightIn = document.getElementById('vitals-weight');
       const heightIn = document.getElementById('vitals-height');
@@ -1358,8 +1488,43 @@
         }
       });
 
+      // ค้นหาคนในบ้านตามบ้านเลขที่
+      const houseInput = document.getElementById('quick-house-no');
+      houseInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        renderFamilyMembers(val);
+      });
+
       document.getElementById('rx-select-drug').addEventListener('change', onDrugSelectChange);
       document.getElementById('visit-form').addEventListener('submit', handleSaveVisit);
+    }
+
+    function renderFamilyMembers(houseNo) {
+      const container = document.getElementById('family-members-container');
+      if (!houseNo) {
+        container.innerHTML = '<span class="text-xs text-slate-400 italic px-2">รายชื่อสมาชิกในบ้านจะปรากฏที่นี่...</span>';
+        return;
+      }
+
+      const members = patients.filter(p => p.houseNo && p.houseNo.toLowerCase() === houseNo.toLowerCase());
+      if (members.length === 0) {
+        container.innerHTML = `<span class="text-xs text-amber-700 italic px-2">ไม่พบรายชื่อในบ้านเลขที่ ${houseNo}</span>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      members.forEach(m => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm';
+        const displayAge = m.age || calculateAge(m.dob) || '-';
+        btn.innerHTML = `<i class="fa-solid fa-user-check text-emerald-600"></i> ${m.name} <span class="text-[10px] text-emerald-700 font-normal">(${displayAge}ปี)</span>`;
+        btn.onclick = () => {
+          document.getElementById('cid').value = m.cid;
+          lookupPatient(m.cid);
+        };
+        container.appendChild(btn);
+      });
     }
 
     function onDrugSelectChange() {
@@ -1420,6 +1585,11 @@
         document.getElementById('cid-status').innerText = '✓ พบประวัติเดิม';
         document.getElementById('cid-status').className = 'absolute right-3 top-2.5 text-xs text-emerald-600 font-bold';
 
+        if (found.houseNo) {
+          document.getElementById('quick-house-no').value = found.houseNo;
+          renderFamilyMembers(found.houseNo);
+        }
+
         if (found.allergy && found.allergy.trim() !== '') {
           showAllergyWarning(found.allergy);
         } else {
@@ -1476,11 +1646,13 @@
       tbody.innerHTML = '';
 
       const filtered = patients.filter(p => 
-        (p.name && p.name.toLowerCase().includes(q)) || (p.cid && p.cid.includes(q))
+        (p.name && p.name.toLowerCase().includes(q)) || 
+        (p.cid && p.cid.includes(q)) ||
+        (p.houseNo && p.houseNo.toLowerCase().includes(q))
       );
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-400">ไม่พบรายชื่อผู้ป่วย</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-slate-400">ไม่พบรายชื่อผู้ป่วย</td></tr>';
         return;
       }
 
@@ -1489,11 +1661,12 @@
         tr.className = 'hover:bg-slate-50 transition';
         const displayAge = p.age || calculateAge(p.dob) || '-';
         tr.innerHTML = `
+          <td class="p-3 font-semibold text-emerald-800">${p.houseNo || '-'}</td>
           <td class="p-3 font-mono font-medium text-slate-700">${p.cid}</td>
           <td class="p-3 font-semibold text-slate-800">${p.name}</td>
           <td class="p-3 text-center text-slate-600">${p.gender || '-'}</td>
           <td class="p-3 text-center text-slate-600">${p.dob ? p.dob + ' ' : ''}(${displayAge} ปี)</td>
-          <td class="p-3 text-slate-600">${p.address || '-'}</td>
+          <td class="p-3 text-slate-700">${p.privilege || 'บัตรทอง'}</td>
           <td class="p-3">
             ${p.allergy ? `<span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-[11px]"><i class="fa-solid fa-triangle-exclamation"></i> ${p.allergy}</span>` : '<span class="text-slate-400">-</span>'}
           </td>
@@ -1519,14 +1692,14 @@
     // ================= ดูประวัติรายบุคคล =================
     window.openPatientHistoryModal = function(cid) {
       const patient = patients.find(p => p.cid === cid) || { name: 'ไม่พบข้อมูล', cid: cid };
-      document.getElementById('modal-patient-history-subtitle').innerText = `ผู้ป่วย: ${patient.name} | เลขบัตรประชาชน: ${patient.cid}`;
+      document.getElementById('modal-patient-history-subtitle').innerText = `ผู้ป่วย: ${patient.name} | บ้านเลขที่: ${patient.houseNo || '-'} | เลขบัตร: ${patient.cid}`;
 
       const summaryDiv = document.getElementById('modal-patient-info-summary');
       summaryDiv.innerHTML = `
+        <div><span class="text-slate-400 block">บ้านเลขที่ / ที่อยู่:</span><strong>${patient.houseNo ? 'บ้านเลขที่ ' + patient.houseNo + ' ' : ''}${patient.address || '-'}</strong></div>
         <div><span class="text-slate-400 block">เพศ / อายุ:</span><strong>${patient.gender || '-'} / ${patient.age || calculateAge(patient.dob) || '-'} ปี</strong></div>
-        <div><span class="text-slate-400 block">ที่อยู่:</span><strong>${patient.address || '-'}</strong></div>
         <div><span class="text-slate-400 block text-rose-600">ประวัติแพ้ยา:</span><strong class="text-rose-700">${patient.allergy || 'ไม่มี'}</strong></div>
-        <div><span class="text-slate-400 block">โรคประจำตัวเดิม:</span><strong>${patient.chronic || '-'}</strong></div>
+        <div><span class="text-slate-400 block">สิทธิรักษา / โรคประจำตัว:</span><strong>${patient.privilege || 'บัตรทอง'} / ${patient.chronic || '-'}</strong></div>
       `;
 
       const timelineDiv = document.getElementById('patient-history-timeline');
@@ -1550,7 +1723,8 @@
                 <i class="fa-solid fa-print"></i> พิมพ์ OPD Card รอบนี้
               </button>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-slate-50 p-2 rounded">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px] bg-slate-50 p-2 rounded">
+              <div>BT: <strong>${vit.temp || '-'}</strong> °C</div>
               <div>BP: <strong>${vit.sbp || '-'}/${vit.dbp || '-'}</strong> mmHg</div>
               <div>PR: <strong>${vit.pr || '-'}</strong> bpm</div>
               <div>น้ำหนัก: <strong>${vit.weight || '-'}</strong> กก.</div>
@@ -1592,11 +1766,13 @@
       document.getElementById('opd-name').innerText = v.name;
       const displayAge = p.age || calculateAge(p.dob) || '-';
       document.getElementById('opd-gender-age').innerText = `${p.gender || '-'} / ${displayAge} ปี`;
-      document.getElementById('opd-address').innerText = p.address || '-';
+      document.getElementById('opd-address').innerText = `${p.houseNo ? 'บ้านเลขที่ ' + p.houseNo + ' ' : ''}${p.address || '-'}`;
+      document.getElementById('opd-privilege').innerText = p.privilege || 'บัตรทอง (UCS)';
       document.getElementById('opd-allergy').innerText = p.allergy || 'ปฏิเสธประวัติแพ้ยา';
       document.getElementById('opd-chronic').innerText = v.hi || p.chronic || 'ไม่มี';
 
       const vit = v.vitals || {};
+      document.getElementById('opd-temp').innerText = vit.temp || '-';
       document.getElementById('opd-wt').innerText = vit.weight || '-';
       document.getElementById('opd-ht').innerText = vit.height || '-';
       document.getElementById('opd-bmi').innerText = vit.bmi || '-';
@@ -1753,7 +1929,7 @@
 
     // ================= นำเข้ารายชื่อผู้ป่วย =================
     window.downloadCSVTemplate = function() {
-      const template = '\uFEFFcid,name,gender,dob,age,address,allergy,chronic\n1509900111111,นายสมชาย สุขเกษม,ชาย,1985-04-12,39,หมู่ 2 หย่อมบ้านปางโปโล,Amoxicillin,ความดันโลหิตสูง\n1509900222222,นางมะลิ ดอยสวย,หญิง,1970-08-25,54,หมู่ 2 หย่อมบ้านปางโปโล,,เบาหวาน\n';
+      const template = '\uFEFFhouseNo,cid,name,gender,dob,age,privilege,address,allergy,chronic\n12,1509900111111,นายสมชาย สุขเกษม,ชาย,1985-04-12,39,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,Amoxicillin,ความดันโลหิตสูง\n12,1509900222222,นางมะลิ ดอยสวย,หญิง,1970-08-25,54,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,,เบาหวาน\n';
       downloadFile(template, 'Template_Patients_PangPoLoh.csv', 'text/csv;charset=utf-8;');
     };
 
@@ -1797,11 +1973,13 @@
       };
 
       const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+      const houseIdx = headers.findIndex(h => h.includes('house') || h.includes('บ้าน'));
       const cidIdx = headers.findIndex(h => h === 'cid' || h.includes('เลข') || h.includes('13'));
       const nameIdx = headers.findIndex(h => h === 'name' || h.includes('ชื่อ'));
       const genderIdx = headers.findIndex(h => h === 'gender' || h.includes('เพศ'));
       const dobIdx = headers.findIndex(h => h === 'dob' || h.includes('เกิด'));
       const ageIdx = headers.findIndex(h => h === 'age' || h.includes('อายุ'));
+      const privIdx = headers.findIndex(h => h === 'privilege' || h.includes('สิทธิ'));
       const addrIdx = headers.findIndex(h => h === 'address' || h.includes('อยู่') || h.includes('หมู่'));
       const allergyIdx = headers.findIndex(h => h === 'allergy' || h.includes('แพ้'));
       const chronicIdx = headers.findIndex(h => h === 'chronic' || h.includes('ประจำตัว'));
@@ -1824,11 +2002,13 @@
         const parsedAge = ageIdx >= 0 ? parseInt(row[ageIdx]) : calculateAge(dobVal);
 
         const patientObj = {
+          houseNo: houseIdx >= 0 && row[houseIdx] ? row[houseIdx] : '1',
           cid: cid,
           name: name,
           gender: genderIdx >= 0 && row[genderIdx] ? row[genderIdx] : 'ชาย',
           dob: dobVal,
           age: !isNaN(parsedAge) ? parsedAge : '',
+          privilege: privIdx >= 0 && row[privIdx] ? row[privIdx] : 'บัตรทอง (UCS)',
           address: addrIdx >= 0 ? row[addrIdx] : '',
           allergy: allergyIdx >= 0 ? row[allergyIdx] : '',
           chronic: chronicIdx >= 0 ? row[chronicIdx] : ''
@@ -1846,6 +2026,7 @@
 
       saveStorage('patients', patients);
       renderPatientsTable();
+      updateHouseDatalist();
       alert(`นำเข้ารายชื่อสำเร็จ!\n• เพิ่มใหม่: ${countAdded} ราย\n• อัปเดตข้อมูลเดิม: ${countUpdated} ราย`);
     }
 
@@ -1860,6 +2041,7 @@
 
     document.getElementById('form-add-patient').addEventListener('submit', (e) => {
       e.preventDefault();
+      const houseNo = document.getElementById('m-patient-houseno').value.trim();
       const cid = document.getElementById('m-patient-cid').value.trim();
       const name = document.getElementById('m-patient-name').value.trim();
       const dobVal = document.getElementById('m-patient-dob').value;
@@ -1867,11 +2049,13 @@
 
       const existingIndex = patients.findIndex(p => p.cid === cid);
       const newPatient = {
+        houseNo: houseNo,
         cid: cid,
         name: name,
         gender: document.getElementById('m-patient-gender').value,
         dob: dobVal,
         age: ageVal !== '' ? ageVal : '',
+        privilege: document.getElementById('m-patient-privilege').value,
         address: document.getElementById('m-patient-address').value.trim(),
         allergy: document.getElementById('m-patient-allergy').value.trim(),
         chronic: document.getElementById('m-patient-chronic').value.trim()
@@ -1885,6 +2069,7 @@
 
       saveStorage('patients', patients);
       renderPatientsTable();
+      updateHouseDatalist();
       closePatientModal();
       alert('บันทึกข้อมูลผู้ป่วยเรียบร้อย');
     });
@@ -1894,6 +2079,7 @@
         patients = patients.filter(p => p.cid !== cid);
         saveStorage('patients', patients);
         renderPatientsTable();
+        updateHouseDatalist();
       }
     };
 
@@ -2019,6 +2205,7 @@
       const cid = document.getElementById('cid').value.trim();
       const patientName = document.getElementById('patient-name').value.trim();
       const cc = document.getElementById('clinical-cc').value.trim();
+      const houseNo = document.getElementById('quick-house-no').value.trim();
 
       if (!cid || !patientName || !cc) {
         alert('กรุณากรอกข้อมูลสำคัญ (เลข 13 หลัก, ชื่อ-สกุล, อาการ CC)');
@@ -2038,11 +2225,13 @@
 
       const patientIndex = patients.findIndex(p => p.cid === cid);
       const patientData = {
+        houseNo: houseNo || (patientIndex >= 0 ? patients[patientIndex].houseNo : '1'),
         cid: cid,
         name: patientName,
         gender: document.getElementById('patient-gender').value,
         dob: dobVal,
         age: ageVal !== '' ? ageVal : '',
+        privilege: patientIndex >= 0 ? patients[patientIndex].privilege : 'บัตรทอง (UCS)',
         address: patientIndex >= 0 ? patients[patientIndex].address : '',
         allergy: document.getElementById('drug-allergy').value.trim(),
         chronic: document.getElementById('clinical-hi').value.trim()
@@ -2060,7 +2249,10 @@
         date: document.getElementById('visit-date').value,
         cid: cid,
         name: patientName,
+        houseNo: patientData.houseNo,
+        privilege: patientData.privilege,
         vitals: {
+          temp: document.getElementById('vitals-temp').value,
           weight: document.getElementById('vitals-weight').value,
           height: document.getElementById('vitals-height').value,
           bmi: document.getElementById('vitals-bmi').value,
@@ -2086,6 +2278,7 @@
       renderPatientsTable();
       renderHistoryTable();
       checkLowStockAlert();
+      updateHouseDatalist();
 
       if (confirm('✓ บันทึกการตรวจรักษาและตัดสต็อกยาเรียบร้อย!\n\nต้องการเปิดหน้าพิมพ์ใบตรวจ OPD Card ทันทีเลยหรือไม่?')) {
         previewOpdCard(newVisitId);
@@ -2103,6 +2296,7 @@
       hideRecentHistoryBanner();
       document.getElementById('drug-clinical-preview-box').classList.add('hidden');
       document.getElementById('cid-status').innerText = '';
+      document.getElementById('family-members-container').innerHTML = '<span class="text-xs text-slate-400 italic px-2">รายชื่อสมาชิกในบ้านจะปรากฏที่นี่...</span>';
     };
 
     // ================= คลังยา =================
@@ -2286,6 +2480,7 @@
       const gender = document.getElementById('patient-gender').value;
       const cc = document.getElementById('clinical-cc').value;
       const pi = document.getElementById('clinical-pi').value;
+      const temp = document.getElementById('vitals-temp').value;
       const sbp = document.getElementById('vitals-sbp').value;
       const dbp = document.getElementById('vitals-dbp').value;
       const pr = document.getElementById('vitals-pr').value;
@@ -2295,7 +2490,7 @@
         return;
       }
 
-      const caseSummary = `ปรึกษาเคสผู้ป่วย: เพศ ${gender} อายุ ${age} ปี, สัญญาณชีพ: BP ${sbp}/${dbp} mmHg, PR ${pr} bpm, อาการสำคัญ: ${cc}, ประวัติปัจจุบัน: ${pi || '-'}. ขอแนวทางการวินิจฉัยแยกโรค และสัญญาณอันตราย (Red Flags) ที่ต้องส่งต่อดอยครับ`;
+      const caseSummary = `ปรึกษาเคสผู้ป่วย: เพศ ${gender} อายุ ${age} ปี, สัญญาณชีพ: ไข้ ${temp || '-'} °C, BP ${sbp}/${dbp} mmHg, PR ${pr} bpm, อาการสำคัญ: ${cc}, ประวัติปัจจุบัน: ${pi || '-'}. ขอแนวทางการวินิจฉัยแยกโรค และสัญญาณอันตราย (Red Flags) ที่ต้องส่งต่อดอยครับ`;
 
       switchTab('ai-tab');
       document.getElementById('ai-prompt-input').value = caseSummary;
@@ -2379,7 +2574,7 @@
       if (container.lastChild) container.removeChild(container.lastChild);
     }
 
-    // ================= ประวัติการตรวจ & ส่งออก =================
+    // ================= ประวัติการตรวจ & ส่งออก (MY PCU) =================
     function renderHistoryTable() {
       const tbody = document.getElementById('history-table-body');
       tbody.innerHTML = '';
@@ -2422,16 +2617,31 @@
       }
     };
 
+    // ส่งออกไฟล์ CSV เรียงตามลำดับหน้าต่างของ MY PCU
+    window.exportToMYPCU_CSV = function() {
+      if (visits.length === 0) {
+        alert('ยังไม่มีข้อมูลการตรวจสำหรับการส่งออก');
+        return;
+      }
+      let csv = '\uFEFFเลข13หลัก,วันที่รับบริการ,สิทธิรักษา,บ้านเลขที่,ชื่อสกุล,อาการสำคัญ_CC,ประวัติ_PI,BT_อุณหภูมิ,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,PR,Dxหลัก_แผนปัจจุบัน,Dxร่วม_แผนไทยUCode,รายการยาและจำนวนที่สั่งจ่าย,ผู้ตรวจ\n';
+      visits.forEach(v => {
+        const rxText = v.rx.map(r => `${r.name} x${r.qty}`).join(' | ');
+        const vit = v.vitals || {};
+        csv += `"${v.cid}","${v.date}","${v.privilege||'บัตรทอง'}","${v.houseNo||''}","${v.name}","${v.cc}","${v.pi||''}","${vit.temp||''}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${vit.pr||''}","${v.dxModern||''}","${v.dxThai||''}","${rxText}","${v.provider}"\n`;
+      });
+      downloadFile(csv, `MYPCU_Claim_Export_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+    };
+
     window.exportToCSV = function() {
       if (visits.length === 0) {
         alert('ยังไม่มีข้อมูลการตรวจสำหรับการส่งออก');
         return;
       }
-      let csv = '\uFEFFวันที่,เลข13หลัก,ชื่อสกุล,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,CC,HI,Dxแผนปัจจุบัน,Dxแผนไทย,รายการยาและวิธีรับประทาน,ผู้ตรวจ\n';
+      let csv = '\uFEFFวันที่,เลข13หลัก,บ้านเลขที่,ชื่อสกุล,BT,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,CC,HI,Dxแผนปัจจุบัน,Dxแผนไทย,รายการยาและวิธีรับประทาน,ผู้ตรวจ\n';
       visits.forEach(v => {
         const rxText = v.rx.map(r => `${r.name} x${r.qty} (${r.sig||''}) [${r.warning||''}]`).join('; ');
         const vit = v.vitals || {};
-        csv += `"${v.date}","${v.cid}","${v.name}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${v.cc}","${v.hi}","${v.dxModern}","${v.dxThai}","${rxText}","${v.provider}"\n`;
+        csv += `"${v.date}","${v.cid}","${v.houseNo||''}","${v.name}","${vit.temp||''}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${v.cc}","${v.hi}","${v.dxModern}","${v.dxThai}","${rxText}","${v.provider}"\n`;
       });
       downloadFile(csv, `PangPoLoh_Visits_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
     };
@@ -2441,9 +2651,9 @@
         alert('ไม่มีข้อมูลรายชื่อผู้ป่วย');
         return;
       }
-      let csv = '\uFEFFcid,name,gender,dob,age,address,allergy,chronic\n';
+      let csv = '\uFEFFhouseNo,cid,name,gender,dob,age,privilege,address,allergy,chronic\n';
       patients.forEach(p => {
-        csv += `"${p.cid}","${p.name}","${p.gender||''}","${p.dob||''}","${p.age||''}","${p.address||''}","${p.allergy||''}","${p.chronic||''}"\n`;
+        csv += `"${p.houseNo||''}","${p.cid}","${p.name}","${p.gender||''}","${p.dob||''}","${p.age||''}","${p.privilege||'บัตรทอง (UCS)'}","${p.address||''}","${p.allergy||''}","${p.chronic||''}"\n`;
       });
       downloadFile(csv, `PangPoLoh_Patients_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
     };
@@ -2507,8 +2717,8 @@
 
     document.getElementById('form-user').addEventListener('submit', (e) => {
       e.preventDefault();
-      const u = document.getElementById('m-user-username').value.trim();
-      if (users.find(x => x.username === u)) {
+      const u = document.getElementById('m-user-username').value.trim().toLowerCase();
+      if (users.find(x => x.username.toLowerCase() === u)) {
         alert('ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว');
         return;
       }
