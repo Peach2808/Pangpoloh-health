@@ -514,8 +514,8 @@
               <button onclick="openAddDrugModal()" class="admin-only hidden px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 shadow">
                 <i class="fa-solid fa-plus"></i> เพิ่มยาใหม่
               </button>
-              <button onclick="resetDefaultDrugs()" class="admin-only hidden px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium flex items-center gap-1">
-                <i class="fa-solid fa-rotate-left"></i> คืนค่ายาเริ่มต้น
+              <button onclick="resetDefaultDrugs()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+                <i class="fa-solid fa-rotate-left text-emerald-600"></i> อัปเดตยา 47 รายการ
               </button>
               <button onclick="clearAllDrugs()" class="admin-only hidden px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-medium flex items-center gap-1 border border-rose-200">
                 <i class="fa-solid fa-broom"></i> ล้างยาทั้งหมด (นับสต็อกใหม่)
@@ -1980,7 +1980,7 @@
     }
 
     function loadStorageData() {
-      const DRUGS_VERSION = 'v3_47_items';
+      const DRUGS_VERSION = 'v4_47_items_full';
       const savedVersion = localStorage.getItem(STORAGE_KEY_PREFIX + 'drugs_version');
       const savedStock = localStorage.getItem(STORAGE_KEY_PREFIX + 'drugs');
       
@@ -3598,13 +3598,16 @@
     };
 
     window.resetDefaultDrugs = function() {
-      showConfirmModal('คืนค่ารายการยาตั้งต้น 8 ชนิดใช่หรือไม่?', () => {
+      showConfirmModal('ต้องการคืนค่าและอัปเดตรายการยาทั้งหมดครบ 47 ชนิดใช่หรือไม่?', () => {
         inventory = [...DEFAULT_DRUGS];
         saveStorage('drugs', inventory);
+        if (isCloudConnected && firebaseDb) {
+          uploadDrugsToCloud();
+        }
         renderInventoryTable();
         renderDrugDropdown();
         checkLowStockAlert();
-        showToast('คืนค่ายาตั้งต้นเรียบร้อย', 'success');
+        showToast('อัปเดตรายการยาครบทั้ง 47 รายการเรียบร้อยแล้ว', 'success');
       });
     };
 
@@ -4196,8 +4199,9 @@
       // 1. ซิงก์ยาและตัดสต็อกเรียลไทม์ (เมื่อเครื่องอื่นตัดสต็อก เครื่องนี้จะลดทันที)
       if (unsubDrugs) unsubDrugs();
       unsubDrugs = firebaseDb.collection('drugs').onSnapshot(snapshot => {
-        if (snapshot.empty) {
-          // Cloud empty -> seed
+        // หากบนคลาวด์ยังว่าง หรือยังมีแค่ยาชุดเก่า 8 รายการ (น้อยกว่า 40 รายการ)
+        // ให้อัปโหลดและแทนที่ด้วยรายการยาชุดใหม่ครบทั้ง 47 รายการขึ้นคลาวด์ทันที!
+        if (snapshot.empty || snapshot.size < 40) {
           uploadDrugsToCloud();
           return;
         }
@@ -4205,7 +4209,7 @@
         snapshot.forEach(doc => {
           cloudDrugs.push(doc.data());
         });
-        if (cloudDrugs.length > 0) {
+        if (cloudDrugs.length >= 40) {
           cloudDrugs.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
           inventory = cloudDrugs;
           saveStorage('drugs', inventory);
@@ -4270,9 +4274,14 @@
 
     function uploadDrugsToCloud() {
       if (!firebaseDb) return;
-      inventory.forEach(d => {
+      DEFAULT_DRUGS.forEach(d => {
         firebaseDb.collection('drugs').doc(d.id).set(d, { merge: true }).catch(() => {});
       });
+      inventory = [...DEFAULT_DRUGS];
+      saveStorage('drugs', inventory);
+      renderInventoryTable();
+      renderDrugDropdown();
+      checkLowStockAlert();
     }
 
     function uploadPatientsToCloud() {
