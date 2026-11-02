@@ -5,8 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PangPoLoh Health - ปางโปโล เฮลธ์ (ระบบเวชระเบียนชุมชน)</title>
-  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="icon" type="image/jpeg" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23059669'/%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS for Direct Excel (.xlsx/.xls) Import -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <!-- Firebase SDK for Realtime Multi-Device Cloud Sync -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -54,7 +56,7 @@
   <!-- ================= AUTH CONTAINER ================= -->
   <div id="auth-container" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-800 to-teal-950 p-4">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-emerald-100 text-center">
-      <img src="logo.jpg" alt="PangPoLoh Health Logo" class="w-24 h-24 mx-auto mb-3 object-contain rounded-3xl shadow-md border border-emerald-100" onerror="this.onerror=null; this.src='https://via.placeholder.com/96?text=PangPoLoh';">
+      <img src="https://via.placeholder.com/96?text=PangPoLoh" data-local-logo="logo.jpg" alt="PangPoLoh Health Logo" class="w-24 h-24 mx-auto mb-3 object-contain rounded-3xl shadow-md border border-emerald-100" onerror="this.onerror=null; this.src='https://via.placeholder.com/96?text=PangPoLoh';">
       <h1 class="text-2xl font-bold text-slate-800">PangPoLoh Health</h1>
       <p class="text-emerald-700 font-medium text-xs mt-1 mb-8">ระบบเวชระเบียนชุมชนและคลังยาบนพื้นที่สูง</p>
 
@@ -89,7 +91,7 @@
     <header class="bg-emerald-700 text-white shadow-md sticky top-0 z-40">
       <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-4">
         <div class="flex items-center gap-3">
-          <img src="logo.jpg" alt="Logo" class="w-10 h-10 object-contain rounded-xl shadow border border-emerald-500 bg-white" onerror="this.onerror=null; this.src='https://via.placeholder.com/40?text=PH';">
+          <img src="https://via.placeholder.com/96?text=PangPoLoh" data-local-logo="logo.jpg" alt="Logo" class="w-10 h-10 object-contain rounded-xl shadow border border-emerald-500 bg-white" onerror="this.onerror=null; this.src='https://via.placeholder.com/40?text=PH';">
           <div>
             <h1 class="text-lg font-bold tracking-tight leading-tight">PangPoLoh Health</h1>
             <p class="text-[11px] text-emerald-200">หน่วยเวชระเบียนชุมชน & คลังยาออฟไลน์</p>
@@ -450,9 +452,9 @@
               <p class="text-xs text-slate-500 mt-0.5">ค้นหาชื่อ บ้านเลขที่ ประวัติเดิม วันเกิด/อายุ โรคประจำตัว หรือนำเข้าฐานข้อมูลจากไฟล์ CSV</p>
             </div>
             <div class="flex flex-wrap gap-2">
-              <input type="file" id="patient-file-input" accept=".csv" class="hidden" onchange="handlePatientCSVUpload(event)">
+              <input type="file" id="patient-file-input" accept=".csv, .xlsx, .xls" class="hidden" onchange="handlePatientCSVUpload(event)">
               <button onclick="document.getElementById('patient-file-input').click()" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-file-import"></i> นำเข้ารายชื่อ (CSV)
+                <i class="fa-solid fa-file-import"></i> นำเข้ารายชื่อ (CSV / Excel)
               </button>
               <button onclick="downloadCSVTemplate()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium flex items-center gap-1.5" title="ดาวน์โหลดไฟล์ตัวอย่างสำหรับกรอกข้อมูล">
                 <i class="fa-solid fa-file-lines text-teal-600"></i> ไฟล์แม่แบบ CSV
@@ -783,7 +785,7 @@
       <!-- เอกสาร OPD Card ที่จะถูกสั่งพิมพ์จริง -->
       <div id="print-opd-area" class="flex-1 overflow-y-auto p-8 bg-white border border-slate-300 rounded-lg text-slate-900 font-sans text-xs leading-relaxed">
         <div class="flex items-center justify-between border-b-2 border-slate-800 pb-3 mb-4">
-          <img src="logo.jpg" alt="Logo" class="w-16 h-16 object-contain rounded-xl" onerror="this.onerror=null; this.src='https://via.placeholder.com/64?text=Logo';">
+          <img src="https://via.placeholder.com/96?text=PangPoLoh" data-local-logo="logo.jpg" alt="Logo" class="w-16 h-16 object-contain rounded-xl" onerror="this.onerror=null; this.src='https://via.placeholder.com/64?text=Logo';">
           <div class="text-center flex-1 pr-16">
             <h2 class="text-base font-bold tracking-wide">ใบตรวจรักษาผู้ป่วยนอก (OPD CARD)</h2>
             <p class="text-xs font-medium">สถานีอนามัย / หน่วยบริการสุขภาพปางโปโล (PangPoLoh Health)</p>
@@ -1371,6 +1373,15 @@
       setTodayDate();
       setDefaultUsageMonth();
       updateHouseDatalist();
+      // โหลดรูป logo.jpg จากโฟลเดอร์เครื่องผู้ใช้
+      document.querySelectorAll('img[data-local-logo]').forEach(img => {
+        const localPath = img.getAttribute('data-local-logo');
+        if (localPath) {
+          const testImg = new Image();
+          testImg.onload = () => { img.src = localPath; };
+          testImg.src = localPath;
+        }
+      });
 
       // ตรวจสอบการเชื่อมต่อคลาวด์อัตโนมัติ (จากไฟล์, ลิงก์แชร์, หรือ LocalStorage)
       const cloudCfg = checkURLCloudConfig();
@@ -1494,6 +1505,15 @@
       renderUsersTable();
       checkLowStockAlert();
       updateHouseDatalist();
+      // โหลดรูป logo.jpg จากโฟลเดอร์เครื่องผู้ใช้
+      document.querySelectorAll('img[data-local-logo]').forEach(img => {
+        const localPath = img.getAttribute('data-local-logo');
+        if (localPath) {
+          const testImg = new Image();
+          testImg.onload = () => { img.src = localPath; };
+          testImg.src = localPath;
+        }
+      });
     }
 
     document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -2196,97 +2216,200 @@
     };
 
     // ================= นำเข้ารายชื่อผู้ป่วย =================
+        // ================= นำเข้ารายชื่อผู้ป่วย (รองรับทั้ง EXCEL .XLSX และ CSV THAI/UTF-8) =================
     window.downloadCSVTemplate = function() {
-      const template = "\uFEFFpid,houseNo,name,gender,dob,age,privilege,address,allergy,chronic,cid\nPID-0001,12,นายสมชาย สุขเกษม,ชาย,1985-04-12,39,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,Amoxicillin,ความดันโลหิตสูง,1509900111111\nPID-0002,12,นางมะลิ ดอยสวย,หญิง,1970-08-25,54,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,,เบาหวาน,\n";
+      const template = "\uFEFFPID,ชื่อ,นามสกุล,วันเดือนปีเกิด,อายุ (ปี/เดือน/วัน),ที่อยู่,แพ้ยา,โรคประจำตัว,สิทธิรักษา,เลขประจำตัวประชาชน\nPID-0001,สมชาย,สุขเกษม,12/04/2528,39,12 หมู่ 2 หย่อมบ้านปางโปโล,Amoxicillin,ความดันโลหิตสูง,บัตรทอง (UCS),1509900111111\nPID-0002,มะลิ,ดอยสวย,25/08/2513,54,12,ไม่มี,เบาหวาน,บัตรทอง (UCS),\n";
       downloadFile(template, 'Template_Patients_PangPoLoh.csv', 'text/csv;charset=utf-8;');
-      showToast('ดาวน์โหลดแม่แบบ CSV เรียบร้อย', 'info');
+      showToast('ดาวน์โหลดแม่แบบเรียบร้อย (เปิดกรอกใน Excel ได้เลย)', 'info');
     };
+
+    function parseThaiDOB(str) {
+      if (!str) return '';
+      str = String(str).trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+      const m = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/);
+      if (m) {
+        const day = m[1].padStart(2, '0');
+        const month = m[2].padStart(2, '0');
+        let year = parseInt(m[3], 10);
+        if (year > 2400) year -= 543;
+        return year + '-' + month + '-' + day;
+      }
+      return str;
+    }
+
+    function extractHouseNo(addr) {
+      if (!addr) return '1';
+      addr = String(addr).trim();
+      const m = addr.match(/^(?:บ้านเลขที่\s*)?([0-9]+(?:\/[0-9]+)?)/);
+      if (m) return m[1];
+      return '1';
+    }
+
+    function detectCSVDelimiter(text) {
+      const firstLine = text.split(/\r?\n/)[0] || '';
+      const commaCount = (firstLine.match(/,/g) || []).length;
+      const semiCount = (firstLine.match(/;/g) || []).length;
+      const tabCount = (firstLine.match(/\t/g) || []).length;
+      if (semiCount > commaCount && semiCount > tabCount) return ';';
+      if (tabCount > commaCount && tabCount > semiCount) return '\t';
+      return ',';
+    }
+
+    function parseCSVToRows(text) {
+      const delim = detectCSVDelimiter(text);
+      const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+      return lines.map(line => {
+        const res = [];
+        let curr = '';
+        let inQuote = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') {
+            inQuote = !inQuote;
+          } else if (c === delim && !inQuote) {
+            res.push(curr.trim().replace(/^"|"$/g, ''));
+            curr = '';
+          } else {
+            curr += c;
+          }
+        }
+        res.push(curr.trim().replace(/^"|"$/g, ''));
+        return res;
+      });
+    }
 
     window.handlePatientCSVUpload = function(event) {
       const file = event.target.files[0];
       if (!file) return;
 
+      const fileName = file.name.toLowerCase();
+      const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
       const reader = new FileReader();
       reader.onload = function(e) {
-        const text = e.target.result;
-        processPatientsCSV(text);
+        try {
+          const buffer = e.target.result;
+          if (isExcel && typeof XLSX !== 'undefined') {
+            // อ่านไฟล์ Excel (.xlsx / .xls) โดยตรง ภาษาไทยไม่เพี้ยน 100%
+            const wb = XLSX.read(buffer, { type: 'array' });
+            const firstSheetName = wb.SheetNames[0];
+            const worksheet = wb.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+            processPatientRows(rows);
+          } else {
+            // อ่านไฟล์ CSV: ตรวจจับอัตโนมัติระหว่าง UTF-8 และ Windows-874 (TIS-620 ของ Excel ไทย)
+            let text = '';
+            try {
+              const utf8Decoder = new TextDecoder('utf-8', { fatal: true });
+              text = utf8Decoder.decode(buffer);
+            } catch (errUtf8) {
+              try {
+                const thaiDecoder = new TextDecoder('windows-874');
+                text = thaiDecoder.decode(buffer);
+              } catch (errThai) {
+                const fallbackDecoder = new TextDecoder('utf-8');
+                text = fallbackDecoder.decode(buffer);
+              }
+            }
+            const rows = parseCSVToRows(text);
+            processPatientRows(rows);
+          }
+        } catch (err) {
+          console.error('File import error:', err);
+          showToast('เกิดข้อผิดพลาดในการอ่านไฟล์: ' + err.message, 'error');
+        }
         event.target.value = '';
       };
-      reader.readAsText(file, 'UTF-8');
+      reader.readAsArrayBuffer(file);
     };
 
-    function processPatientsCSV(csvText) {
-      const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
-      if (lines.length <= 1) {
+    function processPatientRows(rows) {
+      if (!rows || rows.length <= 1) {
         showToast('ไฟล์ไม่มีข้อมูลผู้ป่วย', 'warning');
         return;
       }
 
-      const parseCSVLine = (line) => {
-        const res = [];
-        let curr = '';
-        let insideQuote = false;
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          if (char === '"') {
-            insideQuote = !insideQuote;
-          } else if (char === ',' && !insideQuote) {
-            res.push(curr.trim());
-            curr = '';
-          } else {
-            curr += char;
-          }
-        }
-        res.push(curr.trim());
-        return res.map(v => v.replace(/^"|"$/g, '').trim());
-      };
-
-      const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+      // ดึง Header และแปลงเป็นพิมพ์เล็กเพื่อเทียบ
+      const headers = rows[0].map(h => String(h || '').trim().toLowerCase());
+      
       const pidIdx = headers.findIndex(h => h === 'pid' || h.includes('pid') || h.includes('รหัส'));
-      const houseIdx = headers.findIndex(h => h.includes('house') || h.includes('บ้าน'));
-      const cidIdx = headers.findIndex(h => h === 'cid' || h.includes('เลข') || h.includes('13'));
-      const nameIdx = headers.findIndex(h => h === 'name' || h.includes('ชื่อ'));
-      const genderIdx = headers.findIndex(h => h === 'gender' || h.includes('เพศ'));
-      const dobIdx = headers.findIndex(h => h === 'dob' || h.includes('เกิด'));
-      const ageIdx = headers.findIndex(h => h === 'age' || h.includes('อายุ'));
-      const privIdx = headers.findIndex(h => h === 'privilege' || h.includes('สิทธิ'));
-      const addrIdx = headers.findIndex(h => h === 'address' || h.includes('อยู่') || h.includes('หมู่'));
-      const allergyIdx = headers.findIndex(h => h === 'allergy' || h.includes('แพ้'));
-      const chronicIdx = headers.findIndex(h => h === 'chronic' || h.includes('ประจำตัว'));
+      const fnameIdx = headers.findIndex(h => h === 'ชื่อ' || h.includes('first') || h.includes('fname'));
+      const lnameIdx = headers.findIndex(h => h.includes('สกุล') || h.includes('last') || h.includes('lname'));
+      const nameIdx = headers.findIndex(h => (h.includes('ชื่อ') && h.includes('สกุล')) || h === 'name' || h.includes('fullname') || (h.includes('ชื่อ') && fnameIdx === -1));
 
-      if (nameIdx === -1) {
-        showToast('รูปแบบไฟล์ไม่ถูกต้อง: ต้องมีคอลัมน์ชื่อ-สกุล (name)', 'error');
+      const dobIdx = headers.findIndex(h => h.includes('เกิด') || h.includes('dob') || h.includes('birth'));
+      const ageIdx = headers.findIndex(h => h.includes('อายุ') || h.includes('age'));
+      const addrIdx = headers.findIndex(h => h.includes('อยู่') || h.includes('addr') || h.includes('หมู่'));
+      const houseIdx = headers.findIndex(h => h.includes('บ้าน') || h.includes('house'));
+      const allergyIdx = headers.findIndex(h => h.includes('แพ้') || h.includes('allergy'));
+      const chronicIdx = headers.findIndex(h => h.includes('ประจำตัว') || h.includes('โรค') || h.includes('chronic'));
+      const privIdx = headers.findIndex(h => h.includes('สิทธิ') || h.includes('privilege'));
+      const genderIdx = headers.findIndex(h => h.includes('เพศ') || h.includes('gender'));
+      const cidIdx = headers.findIndex(h => h.includes('13') || h === 'cid' || h.includes('บัตร') || h.includes('ปชช'));
+
+      if (nameIdx === -1 && fnameIdx === -1) {
+        showToast('รูปแบบไฟล์ไม่ถูกต้อง: ต้องมีคอลัมน์ชื่อ หรือชื่อ-สกุล', 'error');
         return;
       }
 
       let countAdded = 0;
       let countUpdated = 0;
 
-      for (let i = 1; i < lines.length; i++) {
-        const row = parseCSVLine(lines[i]);
-        const name = row[nameIdx];
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0) continue;
+
+        let name = '';
+        if (fnameIdx >= 0 && lnameIdx >= 0) {
+          name = (String(row[fnameIdx] || '').trim() + ' ' + String(row[lnameIdx] || '').trim()).trim();
+        } else if (nameIdx >= 0) {
+          name = String(row[nameIdx] || '').trim();
+        } else if (fnameIdx >= 0) {
+          name = String(row[fnameIdx] || '').trim();
+        }
         if (!name) continue;
 
-        const pid = (pidIdx >= 0 && row[pidIdx]) ? row[pidIdx] : generateNextPID();
-        const cid = (cidIdx >= 0 && row[cidIdx]) ? row[cidIdx] : '';
-        const dobVal = dobIdx >= 0 ? row[dobIdx] : '';
-        const parsedAge = ageIdx >= 0 ? parseInt(row[ageIdx]) : calculateAge(dobVal);
+        const address = addrIdx >= 0 ? String(row[addrIdx] || '').trim() : '';
+        let houseNo = houseIdx >= 0 && row[houseIdx] ? String(row[houseIdx]).trim() : '';
+        if (!houseNo && address) {
+          houseNo = extractHouseNo(address);
+        }
+        if (!houseNo) houseNo = '1';
+
+        const pid = pidIdx >= 0 && row[pidIdx] ? String(row[pidIdx]).trim() : generateNextPID();
+        const cid = cidIdx >= 0 && row[cidIdx] ? String(row[cidIdx]).trim() : '';
+        const dobVal = dobIdx >= 0 ? parseThaiDOB(row[dobIdx]) : '';
+        
+        let ageVal = '';
+        if (ageIdx >= 0 && row[ageIdx] !== '') {
+          const m = String(row[ageIdx]).match(/\d+/);
+          ageVal = m ? parseInt(m[0], 10) : '';
+        }
+        if (ageVal === '' && dobVal) {
+          ageVal = calculateAge(dobVal);
+        }
+
+        let genderVal = genderIdx >= 0 && row[genderIdx] ? String(row[genderIdx]).trim() : '';
+        if (!genderVal) {
+          genderVal = (name.startsWith('นาง') || name.startsWith('น.ส.') || name.startsWith('เด็กหญิง') || name.startsWith('ด.ญ.')) ? 'หญิง' : 'ชาย';
+        }
 
         const patientObj = {
           pid: pid,
-          houseNo: houseIdx >= 0 && row[houseIdx] ? row[houseIdx] : '1',
+          houseNo: houseNo,
           name: name,
           cid: cid,
-          gender: genderIdx >= 0 && row[genderIdx] ? row[genderIdx] : 'ชาย',
+          gender: genderVal,
           dob: dobVal,
-          age: !isNaN(parsedAge) ? parsedAge : '',
-          privilege: privIdx >= 0 && row[privIdx] ? row[privIdx] : 'บัตรทอง (UCS)',
-          address: addrIdx >= 0 ? row[addrIdx] : '',
-          allergy: allergyIdx >= 0 ? row[allergyIdx] : '',
-          chronic: chronicIdx >= 0 ? row[chronicIdx] : ''
+          age: ageVal,
+          privilege: privIdx >= 0 && row[privIdx] ? String(row[privIdx]).trim() : 'บัตรทอง (UCS)',
+          address: address || ('บ้านเลขที่ ' + houseNo),
+          allergy: allergyIdx >= 0 ? String(row[allergyIdx] || '').trim() : '',
+          chronic: chronicIdx >= 0 ? String(row[chronicIdx] || '').trim() : ''
         };
 
-        const existingIdx = patients.findIndex(p => (pid && p.pid === pid) || (cid && p.cid === cid));
+        const existingIdx = patients.findIndex(p => (pid && p.pid === pid) || (cid && p.cid && p.cid === cid));
         if (existingIdx >= 0) {
           patients[existingIdx] = patientObj;
           countUpdated++;
@@ -2294,13 +2417,34 @@
           patients.push(patientObj);
           countAdded++;
         }
+
+        // ซิงก์ขึ้น Firebase แบบ Real-time ทันทีถ้าเชื่อมต่ออยู่
+        if (isCloudConnected && firebaseDb) {
+          try {
+            firebaseDb.collection('patients').doc(patientObj.pid).set(patientObj, { merge: true });
+          } catch (e) {}
+        }
       }
 
       saveStorage('patients', patients);
       renderPatientsTable();
       updateHouseDatalist();
-      showToast(`นำเข้ารายชื่อสำเร็จ! เพิ่มใหม่ ${countAdded} ราย, อัปเดต ${countUpdated} ราย`, 'success');
+      // โหลดรูป logo.jpg จากโฟลเดอร์เครื่องผู้ใช้
+      document.querySelectorAll('img[data-local-logo]').forEach(img => {
+        const localPath = img.getAttribute('data-local-logo');
+        if (localPath) {
+          const testImg = new Image();
+          testImg.onload = () => { img.src = localPath; };
+          testImg.src = localPath;
+        }
+      });
+      const currentHouse = document.getElementById('quick-house-no')?.value;
+      if (currentHouse) {
+        renderFamilyMembers(currentHouse);
+      }
+      showToast(`✓ นำเข้ารายชื่อสำเร็จ! เพิ่มใหม่ ${countAdded} ราย, อัปเดต ${countUpdated} ราย`, 'success');
     }
+
 
     window.openAddPatientModal = function() {
       document.getElementById('form-add-patient').reset();
@@ -2352,6 +2496,15 @@
       }
       renderPatientsTable();
       updateHouseDatalist();
+      // โหลดรูป logo.jpg จากโฟลเดอร์เครื่องผู้ใช้
+      document.querySelectorAll('img[data-local-logo]').forEach(img => {
+        const localPath = img.getAttribute('data-local-logo');
+        if (localPath) {
+          const testImg = new Image();
+          testImg.onload = () => { img.src = localPath; };
+          testImg.src = localPath;
+        }
+      });
       closePatientModal();
       showToast(`บันทึกข้อมูลผู้ป่วย ${name} (PID: ${pid}) เรียบร้อย`, 'success');
 
@@ -2372,6 +2525,15 @@
         }
         renderPatientsTable();
         updateHouseDatalist();
+      // โหลดรูป logo.jpg จากโฟลเดอร์เครื่องผู้ใช้
+      document.querySelectorAll('img[data-local-logo]').forEach(img => {
+        const localPath = img.getAttribute('data-local-logo');
+        if (localPath) {
+          const testImg = new Image();
+          testImg.onload = () => { img.src = localPath; };
+          testImg.src = localPath;
+        }
+      });
         showToast('ลบข้อมูลผู้ป่วยเรียบร้อย', 'info');
       });
     };
@@ -2594,6 +2756,15 @@
       renderHistoryTable();
       checkLowStockAlert();
       updateHouseDatalist();
+      // โหลดรูป logo.jpg จากโฟลเดอร์เครื่องผู้ใช้
+      document.querySelectorAll('img[data-local-logo]').forEach(img => {
+        const localPath = img.getAttribute('data-local-logo');
+        if (localPath) {
+          const testImg = new Image();
+          testImg.onload = () => { img.src = localPath; };
+          testImg.src = localPath;
+        }
+      });
 
       showConfirmModal('✓ บันทึกตรวจและตัดสต็อกยาเรียบร้อย!\n\nต้องการเปิดหน้าพิมพ์ใบตรวจ OPD Card ทันทีเลยหรือไม่?', () => {
         previewOpdCard(newVisitId);
@@ -3404,6 +3575,15 @@
           saveStorage('patients', patients);
           renderPatientsTable();
           updateHouseDatalist();
+      // โหลดรูป logo.jpg จากโฟลเดอร์เครื่องผู้ใช้
+      document.querySelectorAll('img[data-local-logo]').forEach(img => {
+        const localPath = img.getAttribute('data-local-logo');
+        if (localPath) {
+          const testImg = new Image();
+          testImg.onload = () => { img.src = localPath; };
+          testImg.src = localPath;
+        }
+      });
           const houseNoVal = document.getElementById('quick-house-no')?.value;
           if (houseNoVal) {
             renderFamilyMembers(houseNoVal);
