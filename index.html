@@ -4,9 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PangPoLoh Health - ปางโปโล เฮลธ์</title>
+  <title>PangPoLoh Health - ปางโปโล เฮลธ์ (ระบบเวชระเบียนชุมชน)</title>
   <link rel="icon" type="image/jpeg" href="logo.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK for Realtime Multi-Device Cloud Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -98,6 +102,13 @@
             <span id="low-stock-count">0</span> รายการยาใกล้หมด
           </div>
 
+          <!-- ปุ่มสถานะคลาวด์ซิงก์เรียลไทม์ (Cloud Sync Badge) -->
+          <button type="button" onclick="openCloudSyncModal()" id="btn-cloud-status" class="bg-emerald-800/90 hover:bg-emerald-900 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-emerald-600 text-xs text-white transition shadow-sm" title="คลิกเพื่อตั้งค่าเชื่อมต่อฐานข้อมูลคลาวด์ซิงก์เรียลไทม์ข้ามเครื่อง">
+            <span id="cloud-status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+            <span id="cloud-status-text" class="font-medium">ออฟไลน์ (ในเครื่อง)</span>
+            <i class="fa-solid fa-cloud text-emerald-300 text-xs"></i>
+          </button>
+
           <div class="bg-emerald-800/80 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-emerald-600 text-xs">
             <i class="fa-solid fa-user-circle text-emerald-300"></i>
             <span id="current-user-name" class="font-medium">ผู้ใช้งาน</span>
@@ -150,22 +161,37 @@
               </div>
             </div>
 
-            <!-- กล่องลัด: ค้นหาด่วนด้วยบ้านเลขที่ (Family Folder) -->
-            <div class="mb-5 p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 border border-emerald-200 rounded-2xl shadow-sm">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <label class="text-xs font-bold text-emerald-900 flex items-center gap-2">
+            <!-- ค้นหาผู้รับบริการด้วยบ้านเลขที่ (Family Folder) -->
+            <div class="mb-5 p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 border-2 border-emerald-300 rounded-2xl shadow-sm space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label class="text-xs font-bold text-emerald-950 flex items-center gap-2">
                   <i class="fa-solid fa-house-chimney-user text-emerald-600 text-sm"></i>
-                  ค้นหาด่วนตามบ้านเลขที่ (ไม่ต้องพิมพ์ชื่อ/เลขบัตร)
+                  ค้นหาผู้รับบริการด้วยบ้านเลขที่ (Family Folder)
                 </label>
-                <span class="text-[11px] text-emerald-700">พิมพ์บ้านเลขที่แล้วแตะเลือกชื่อคนในบ้านได้ทันที</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-emerald-700 font-medium">พิมพ์บ้านเลขที่ แล้วแตะเลือกรายชื่อคนในบ้าน รหัส PID และข้อมูลจะเด้งขึ้นอัตโนมัติ</span>
+                  <button type="button" onclick="openAddPatientModal()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center gap-1 shadow-sm transition">
+                    <i class="fa-solid fa-user-plus"></i> + ผู้ป่วยใหม่
+                  </button>
+                </div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                 <div class="sm:col-span-4 relative">
-                  <input type="text" id="quick-house-no" list="house-number-list" placeholder="พิมพ์บ้านเลขที่ เช่น 12, 12/1..." class="w-full px-3 py-2 border border-emerald-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
-                  <datalist id="house-number-list"></datalist>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">พิมพ์บ้านเลขที่ (House No.)</label>
+                  <div class="relative">
+                    <i class="fa-solid fa-house absolute left-3 top-3 text-emerald-600 text-xs"></i>
+                    <input type="text" id="quick-house-no" list="house-number-list" placeholder="เช่น 12, 45/1..." class="w-full pl-8 pr-3 py-2 border-2 border-emerald-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white text-slate-800">
+                    <datalist id="house-number-list"></datalist>
+                  </div>
                 </div>
-                <div class="sm:col-span-8 flex flex-wrap gap-1.5 items-center min-h-[38px] p-1.5 bg-white/70 border border-emerald-200/80 rounded-xl" id="family-members-container">
-                  <span class="text-xs text-slate-400 italic px-2">รายชื่อสมาชิกในบ้านจะปรากฏที่นี่...</span>
+                <div class="sm:col-span-8">
+                  <div class="flex justify-between items-center mb-1">
+                    <label class="block text-[11px] font-bold text-slate-700">รายชื่อสมาชิกในบ้าน (คลิกเลือกคนไข้):</label>
+                    <span id="house-members-count" class="text-[10px] text-emerald-800 font-bold"></span>
+                  </div>
+                  <div class="flex flex-wrap gap-2 items-center min-h-[42px] p-2 bg-white/90 border border-emerald-200/90 rounded-xl" id="family-members-container">
+                    <span class="text-xs text-slate-400 italic px-2">พิมพ์บ้านเลขที่ด้านซ้ายเพื่อแสดงรายชื่อสมาชิกในบ้าน...</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -192,15 +218,25 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">เลขบัตรประจำตัวประชาชน 13 หลัก</label>
-                <div class="relative">
-                  <input type="text" id="cid" maxlength="13" placeholder="ระบุ 13 หลักเพื่อค้นหาประวัติ" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                  <span id="cid-status" class="absolute right-3 top-2.5 text-xs text-slate-400"></span>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="block text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                    <i class="fa-solid fa-fingerprint text-emerald-600"></i> รหัสผู้ป่วย (PID) *
+                  </label>
+                  <span id="pid-status-badge" class="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold hidden">
+                    Auto-PID
+                  </span>
                 </div>
+                <div class="relative">
+                  <input type="text" id="patient-pid" required placeholder="เลข PID จะเด้งขึ้นอัตโนมัติ" class="w-full px-3 py-2 border-2 border-emerald-400 bg-emerald-50/50 rounded-xl text-sm font-mono font-bold text-emerald-950 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all duration-300">
+                  <span id="pid-status" class="absolute right-3 top-2.5 text-xs text-emerald-600 font-bold"></span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                  <i class="fa-solid fa-bolt text-amber-500"></i> เลข PID เด้งขึ้นอัตโนมัติเมื่อเลือกคนไข้
+                </p>
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อ - สกุล ผู้ป่วย *</label>
-                <input type="text" id="patient-name" required placeholder="นาย/นาง/น.ส. ใจดี มีสุข" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <input type="text" id="patient-name" required placeholder="นาย/นาง/น.ส. ใจดี มีสุข" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none font-medium">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">เพศ & วันเกิด / อายุ</label>
@@ -433,7 +469,7 @@
           <div class="mb-4">
             <div class="relative">
               <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-              <input type="text" id="patient-search-input" oninput="renderPatientsTable()" placeholder="พิมพ์ชื่อ-สกุล, บ้านเลขที่ หรือเลขบัตร 13 หลัก เพื่อค้นหาด่วน..." class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <input type="text" id="patient-search-input" oninput="renderPatientsTable()" placeholder="พิมพ์บ้านเลขที่, รหัส PID หรือชื่อ-สกุล เพื่อค้นหาด่วน..." class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
             </div>
           </div>
 
@@ -442,7 +478,7 @@
               <thead class="bg-slate-100 text-slate-600 uppercase font-semibold">
                 <tr>
                   <th class="p-3">บ้านเลขที่</th>
-                  <th class="p-3">เลข 13 หลัก</th>
+                  <th class="p-3">รหัส PID</th>
                   <th class="p-3">ชื่อ - นามสกุล</th>
                   <th class="p-3 text-center">เพศ</th>
                   <th class="p-3 text-center">วันเกิด / อายุ</th>
@@ -640,7 +676,7 @@
               <thead class="bg-slate-100 text-slate-600 uppercase font-semibold">
                 <tr>
                   <th class="p-3">วันที่</th>
-                  <th class="p-3">เลข 13 หลัก</th>
+                  <th class="p-3">รหัส PID</th>
                   <th class="p-3">ชื่อ - นามสกุล</th>
                   <th class="p-3">อาการสำคัญ (CC)</th>
                   <th class="p-3">Dx. แผนปัจจุบัน</th>
@@ -707,7 +743,7 @@
           <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
             <i class="fa-solid fa-folder-open text-emerald-600"></i> แฟ้มประวัติการรักษารายบุคคล
           </h3>
-          <p id="modal-patient-history-subtitle" class="text-xs text-slate-500 mt-0.5">เลขประจำตัวประชาชน: -</p>
+          <p id="modal-patient-history-subtitle" class="text-xs text-slate-500 mt-0.5">รหัสผู้ป่วย (PID): -</p>
         </div>
         <button onclick="closePatientHistoryModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -757,7 +793,7 @@
 
         <div class="grid grid-cols-2 gap-y-2 mb-4 border-b border-slate-200 pb-3">
           <div><strong>วันที่ตรวจ:</strong> <span id="opd-date">-</span></div>
-          <div><strong>เลขบัตรประชาชน:</strong> <span id="opd-cid" class="font-mono">-</span></div>
+          <div><strong>รหัสผู้ป่วย (PID):</strong> <span id="opd-pid" class="font-mono font-bold text-emerald-900">-</span></div>
           <div><strong>ชื่อ - สกุล:</strong> <span id="opd-name" class="font-bold text-sm">-</span></div>
           <div><strong>เพศ / อายุ:</strong> <span id="opd-gender-age">-</span></div>
           <div><strong>บ้านเลขที่ / ที่อยู่:</strong> <span id="opd-address">-</span></div>
@@ -926,13 +962,19 @@
             <input type="text" id="m-patient-houseno" required placeholder="เช่น 12 หรือ 12/1" class="w-full px-3 py-2 border border-emerald-300 bg-emerald-50/30 rounded-xl font-medium">
           </div>
           <div>
-            <label class="block font-semibold text-slate-600 mb-1">เลขประจำตัวประชาชน 13 หลัก *</label>
-            <input type="text" id="m-patient-cid" maxlength="13" required placeholder="เลข 13 หลัก" class="w-full px-3 py-2 border rounded-xl">
+            <label class="block font-semibold text-emerald-900 mb-1">รหัสประจำตัวผู้ป่วย (PID) *</label>
+            <input type="text" id="m-patient-pid" required placeholder="เช่น PID-0005" class="w-full px-3 py-2 border border-emerald-400 bg-emerald-50/60 rounded-xl font-mono font-bold text-emerald-950">
           </div>
         </div>
-        <div>
-          <label class="block font-semibold text-slate-600 mb-1">ชื่อ - นามสกุล *</label>
-          <input type="text" id="m-patient-name" required placeholder="นาย/นาง/น.ส. นามสกุล" class="w-full px-3 py-2 border rounded-xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">ชื่อ - นามสกุล *</label>
+            <input type="text" id="m-patient-name" required placeholder="นาย/นาง/น.ส. นามสกุล" class="w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-500 mb-1">เลขประจำตัวประชาชน 13 หลัก (ถ้ามี)</label>
+            <input type="text" id="m-patient-cid" maxlength="13" placeholder="ระบุถ้ามี (ไม่บังคับ)" class="w-full px-3 py-2 border rounded-xl text-slate-600">
+          </div>
         </div>
         <div class="grid grid-cols-3 gap-2">
           <div>
@@ -1079,9 +1121,55 @@
   </div>
 
   <!-- JAVASCRIPT APPLICATION LOGIC -->
-  <script>
+    <script>
     const STORAGE_KEY_PREFIX = 'pangpoloh_';
     
+    // Toast and Confirm Modal Handlers (Replacing blocked alert/confirm in Canvas)
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const bg = type === 'error' ? 'bg-rose-600' : type === 'warning' ? 'bg-amber-600' : type === 'success' ? 'bg-emerald-600' : 'bg-slate-800';
+      const icon = type === 'error' ? 'fa-circle-xmark' : type === 'warning' ? 'fa-triangle-exclamation' : type === 'success' ? 'fa-circle-check' : 'fa-circle-info';
+      toast.className = `${bg} text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0 max-w-sm`;
+      toast.innerHTML = `<i class="fa-solid ${icon} text-base flex-shrink-0"></i><span class="leading-relaxed font-medium">${message}</span>`;
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function showConfirmModal(message, onConfirm, title = 'ยืนยันการดำเนินการ') {
+      const modal = document.getElementById('modal-confirm');
+      const msgEl = document.getElementById('confirm-modal-message');
+      const titleEl = document.getElementById('confirm-modal-title');
+      const btnOk = document.getElementById('confirm-modal-btn-ok');
+      const btnCancel = document.getElementById('confirm-modal-btn-cancel');
+
+      msgEl.innerText = message;
+      titleEl.innerText = title;
+      modal.classList.remove('hidden');
+
+      const cleanup = () => {
+        modal.classList.add('hidden');
+        btnOk.onclick = null;
+        btnCancel.onclick = null;
+      };
+
+      btnOk.onclick = () => {
+        cleanup();
+        if (onConfirm) onConfirm();
+      };
+
+      btnCancel.onclick = () => {
+        cleanup();
+      };
+    }
+
     const DEFAULT_DRUGS = [
       {
         id: 'D01',
@@ -1186,51 +1274,55 @@
       { id: 'U02', username: 'user', password: 'user123', fullname: 'เจ้าหน้าที่สาธารณสุข (Staff)', role: 'staff' }
     ];
 
-    // เพิ่มฟิลด์ houseNo และ privilege
+    // ข้อมูลผู้ป่วยตั้งต้น พร้อมรหัส PID, บ้านเลขที่ และสิทธิรักษา
     const DEFAULT_PATIENTS = [
       { 
-        cid: '1509900123456', 
-        name: 'นายลี ซอพอ', 
+        pid: 'PID-0001',
         houseNo: '12', 
+        name: 'นายลี ซอพอ', 
         gender: 'ชาย', 
         dob: '1978-05-12', 
         age: 48, 
+        cid: '1509900123456', 
         address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: 'Amoxicillin, Penicillin', 
         chronic: 'ความดันโลหิตสูง' 
       },
       { 
-        cid: '1509900654321', 
-        name: 'นางนาหมี่ จะอือ', 
+        pid: 'PID-0002',
         houseNo: '12', 
+        name: 'นางนาหมี่ จะอือ', 
         gender: 'หญิง', 
         dob: '1964-11-20', 
         age: 62, 
+        cid: '1509900654321', 
         address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: '', 
         chronic: 'เบาหวานชนิดที่ 2' 
       },
       { 
-        cid: '1509900987654', 
-        name: 'นายอาซัง ซอพอ', 
+        pid: 'PID-0003',
         houseNo: '12', 
+        name: 'นายอาซัง ซอพอ', 
         gender: 'ชาย', 
         dob: '2005-08-14', 
         age: 21, 
+        cid: '1509900987654', 
         address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: '', 
         chronic: 'ปฏิเสธโรคประจำตัว' 
       },
       { 
-        cid: '1509900112233', 
-        name: 'นายจะฟะ จะลอ', 
+        pid: 'PID-0004',
         houseNo: '45/1', 
+        name: 'นายจะฟะ จะลอ', 
         gender: 'ชาย', 
         dob: '1982-01-10', 
         age: 44, 
+        cid: '1509900112233', 
         address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: '', 
@@ -1279,16 +1371,39 @@
       setTodayDate();
       setDefaultUsageMonth();
       updateHouseDatalist();
+
+      // ตรวจสอบการเชื่อมต่อคลาวด์อัตโนมัติ (จากไฟล์, ลิงก์แชร์, หรือ LocalStorage)
+      const cloudCfg = checkURLCloudConfig();
+      if (cloudCfg) {
+        initFirebaseConnection(cloudCfg, false);
+      }
     });
 
     function setTodayDate() {
       const today = new Date().toISOString().split('T')[0];
-      document.getElementById('visit-date').value = today;
+      const dateEl = document.getElementById('visit-date');
+      if (dateEl) dateEl.value = today;
     }
 
     function setDefaultUsageMonth() {
       const ym = new Date().toISOString().slice(0, 7);
-      document.getElementById('filter-usage-month').value = ym;
+      const usageMonthEl = document.getElementById('filter-usage-month');
+      if (usageMonthEl) usageMonthEl.value = ym;
+    }
+
+    // คำนวณรหัส PID ถัดไปอัตโนมัติ
+    function generateNextPID() {
+      let maxNum = 0;
+      patients.forEach(p => {
+        if (p.pid) {
+          const match = p.pid.match(/(\d+)/);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            if (num > maxNum) maxNum = num;
+          }
+        }
+      });
+      return 'PID-' + String(maxNum + 1).padStart(4, '0');
     }
 
     function loadStorageData() {
@@ -1303,8 +1418,9 @@
 
       const savedPatients = localStorage.getItem(STORAGE_KEY_PREFIX + 'patients');
       patients = savedPatients ? JSON.parse(savedPatients) : [...DEFAULT_PATIENTS];
-      // อัปเดตฟิลด์บ้านเลขที่และสิทธิถ้ายังไม่มี
-      patients.forEach(p => {
+      // อัปเดตฟิลด์ PID, บ้านเลขที่และสิทธิถ้ายังไม่มี
+      patients.forEach((p, idx) => {
+        if (!p.pid) p.pid = 'PID-' + String(idx + 1).padStart(4, '0');
         if (!p.houseNo) p.houseNo = '12';
         if (!p.privilege) p.privilege = 'บัตรทอง (UCS)';
       });
@@ -1314,6 +1430,13 @@
 
       const savedVisits = localStorage.getItem(STORAGE_KEY_PREFIX + 'visits');
       visits = savedVisits ? JSON.parse(savedVisits) : [];
+      // ปรับปรุง visits ให้มี PID
+      visits.forEach(v => {
+        if (!v.pid && v.cid) {
+          const matched = patients.find(p => p.cid === v.cid);
+          if (matched && matched.pid) v.pid = matched.pid;
+        }
+      });
 
       geminiApiKey = localStorage.getItem(STORAGE_KEY_PREFIX + 'gemini_api_key') || '';
     }
@@ -1326,7 +1449,7 @@
       }
     }
 
-    // ================= AUTHENTICATION (FIXED FOR IOS/IPAD) =================
+    // ================= AUTHENTICATION =================
     function checkSession() {
       try {
         const session = sessionStorage.getItem(STORAGE_KEY_PREFIX + 'session');
@@ -1375,7 +1498,6 @@
 
     document.getElementById('login-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      // แปลงชื่อผู้ใช้เป็นตัวพิมพ์เล็กเสมอเพื่อแก้ปัญหาตัวพิมพ์ใหญ่ตัวแรกบน iOS
       const u = document.getElementById('login-username').value.trim().toLowerCase();
       const p = document.getElementById('login-password').value.trim();
       
@@ -1390,6 +1512,7 @@
         }
         document.getElementById('login-error').classList.add('hidden');
         renderAppForUser();
+        showToast(`ยินดีต้อนรับคุณ ${currentUser.fullname}`, 'success');
       } else {
         document.getElementById('login-error').classList.remove('hidden');
       }
@@ -1447,7 +1570,7 @@
       }
     };
 
-    // ================= ระบบค้นหาด่วนตามบ้านเลขที่ (FAMILY FOLDER) =================
+    // ================= ระบบค้นหาตามบ้านเลขที่ (FAMILY FOLDER) & PID =================
     function updateHouseDatalist() {
       const datalist = document.getElementById('house-number-list');
       if (!datalist) return;
@@ -1473,59 +1596,267 @@
           document.getElementById('vitals-bmi').value = '';
         }
       }
-      weightIn.addEventListener('input', calcBMI);
-      heightIn.addEventListener('input', calcBMI);
+      if (weightIn && heightIn) {
+        weightIn.addEventListener('input', calcBMI);
+        heightIn.addEventListener('input', calcBMI);
+      }
 
-      const cidInput = document.getElementById('cid');
-      cidInput.addEventListener('input', (e) => {
-        const val = e.target.value.trim();
-        if (val.length === 13) {
-          lookupPatient(val);
-        } else {
-          document.getElementById('cid-status').innerText = '';
-          hideAllergyWarning();
-          hideRecentHistoryBanner();
-        }
-      });
+      // เมื่อพิมพ์ค้นหาด้วย PID โดยตรง
+      const pidInput = document.getElementById('patient-pid');
+      if (pidInput) {
+        pidInput.addEventListener('input', (e) => {
+          const val = e.target.value.trim().toUpperCase();
+          if (val) {
+            lookupPatientByPid(val);
+          } else {
+            document.getElementById('pid-status').innerText = '';
+            const badge = document.getElementById('pid-status-badge');
+            if (badge) badge.classList.add('hidden');
+            hideAllergyWarning();
+            hideRecentHistoryBanner();
+          }
+        });
+      }
 
-      // ค้นหาคนในบ้านตามบ้านเลขที่
+      // เมื่อพิมพ์บ้านเลขที่ -> ดึงรายชื่อสมาชิกในบ้านทันที
       const houseInput = document.getElementById('quick-house-no');
-      houseInput.addEventListener('input', (e) => {
-        const val = e.target.value.trim();
-        renderFamilyMembers(val);
-      });
+      if (houseInput) {
+        houseInput.addEventListener('input', (e) => {
+          const val = e.target.value.trim();
+          renderFamilyMembers(val);
+        });
+      }
 
-      document.getElementById('rx-select-drug').addEventListener('change', onDrugSelectChange);
-      document.getElementById('visit-form').addEventListener('submit', handleSaveVisit);
+      const rxDrugSelect = document.getElementById('rx-select-drug');
+      if (rxDrugSelect) {
+        rxDrugSelect.addEventListener('change', onDrugSelectChange);
+      }
+      
+      const visitForm = document.getElementById('visit-form');
+      if (visitForm) {
+        visitForm.addEventListener('submit', handleSaveVisit);
+      }
     }
 
-    function renderFamilyMembers(houseNo) {
+    // แสดงรายชื่อคนในบ้านตามบ้านเลขที่ พร้อมปุ่มเลือกคนไข้
+    function renderFamilyMembers(houseNo, activePid = null) {
       const container = document.getElementById('family-members-container');
+      const countLabel = document.getElementById('house-members-count');
+      if (!container) return;
+
       if (!houseNo) {
-        container.innerHTML = '<span class="text-xs text-slate-400 italic px-2">รายชื่อสมาชิกในบ้านจะปรากฏที่นี่...</span>';
+        container.innerHTML = '<span class="text-xs text-slate-400 italic px-2">พิมพ์บ้านเลขที่ด้านซ้ายเพื่อแสดงรายชื่อสมาชิกในบ้าน...</span>';
+        if (countLabel) countLabel.innerText = '';
         return;
       }
 
-      const members = patients.filter(p => p.houseNo && p.houseNo.toLowerCase() === houseNo.toLowerCase());
+      const members = patients.filter(p => p.houseNo && p.houseNo.trim().toLowerCase() === houseNo.trim().toLowerCase());
+      if (countLabel) {
+        countLabel.innerText = members.length > 0 ? `พบ ${members.length} คนในบ้านนี้` : 'ยังไม่มีคนในบ้านนี้';
+      }
+
       if (members.length === 0) {
-        container.innerHTML = `<span class="text-xs text-amber-700 italic px-2">ไม่พบรายชื่อในบ้านเลขที่ ${houseNo}</span>`;
+        const nextPid = generateNextPID();
+        container.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2 text-xs text-amber-700 italic px-2">
+            <span>ไม่พบรายชื่อในบ้านเลขที่ ${houseNo}</span>
+            <button type="button" onclick="prepareNewPatientForHouse('${houseNo}')" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold not-italic transition text-[11px] flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-user-plus"></i> ลงทะเบียนคนใหม่ในบ้านนี้ (PID: ${nextPid})
+            </button>
+          </div>
+        `;
         return;
       }
 
       container.innerHTML = '';
       members.forEach(m => {
+        const isSelected = activePid && m.pid === activePid;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm';
+        btn.className = isSelected
+          ? 'px-3 py-1.5 bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow ring-2 ring-emerald-400 transition transform scale-[1.02]'
+          : 'px-3 py-1.5 bg-emerald-100/90 hover:bg-emerald-200 text-emerald-950 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm border border-emerald-300/60';
         const displayAge = m.age || calculateAge(m.dob) || '-';
-        btn.innerHTML = `<i class="fa-solid fa-user-check text-emerald-600"></i> ${m.name} <span class="text-[10px] text-emerald-700 font-normal">(${displayAge}ปี)</span>`;
+        btn.innerHTML = `
+          <i class="fa-solid fa-user-check ${isSelected ? 'text-emerald-200' : 'text-emerald-600'}"></i>
+          <span>${m.name}</span>
+          <span class="font-mono text-[10px] ${isSelected ? 'bg-emerald-900 text-emerald-100' : 'bg-emerald-200 text-emerald-900'} px-1.5 py-0.5 rounded font-bold">${m.pid}</span>
+          <span class="text-[10px] ${isSelected ? 'text-emerald-100' : 'text-emerald-700'}">(${displayAge}ปี)</span>
+        `;
         btn.onclick = () => {
-          document.getElementById('cid').value = m.cid;
-          lookupPatient(m.cid);
+          selectPatientByPid(m.pid);
         };
         container.appendChild(btn);
       });
+
+      // ปุ่มเพิ่มคนใหม่ในบ้านนี้
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-medium flex items-center gap-1 transition border border-slate-300';
+      addBtn.innerHTML = '<i class="fa-solid fa-plus text-emerald-600"></i> เพิ่มคนใหม่';
+      addBtn.title = 'ลงทะเบียนคนใหม่ในบ้านเลขที่นี้';
+      addBtn.onclick = () => prepareNewPatientForHouse(houseNo);
+      container.appendChild(addBtn);
     }
+
+    // เตรียมฟอร์มสำหรับผู้ป่วยใหม่ในบ้านเลขที่ที่ระบุ
+    window.prepareNewPatientForHouse = function(houseNo) {
+      const nextPid = generateNextPID();
+      const pidEl = document.getElementById('patient-pid');
+      if (pidEl) {
+        pidEl.value = nextPid;
+        // Animation เด้งขึ้น
+        pidEl.classList.add('ring-4', 'ring-emerald-400', 'bg-emerald-100');
+        setTimeout(() => {
+          pidEl.classList.remove('ring-4', 'ring-emerald-400', 'bg-emerald-100');
+        }, 600);
+      }
+      document.getElementById('patient-name').value = '';
+      document.getElementById('patient-dob').value = '';
+      document.getElementById('patient-age').value = '';
+      document.getElementById('drug-allergy').value = '';
+      document.getElementById('clinical-hi').value = '';
+      hideAllergyWarning();
+      hideRecentHistoryBanner();
+
+      document.getElementById('pid-status').innerText = '+ PID ใหม่';
+      const badge = document.getElementById('pid-status-badge');
+      if (badge) {
+        badge.innerText = 'สร้างรหัส PID ใหม่อัตโนมัติ';
+        badge.className = 'text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold';
+        badge.classList.remove('hidden');
+      }
+
+      showToast(`สร้างรหัส ${nextPid} อัตโนมัติสำหรับบ้านเลขที่ ${houseNo}`, 'info');
+      document.getElementById('patient-name').focus();
+    };
+
+    // เลือกคนไข้จากรายชื่อในบ้าน -> เลข PID เด้งขึ้นอัตโนมัติพร้อมข้อมูล
+    window.selectPatientByPid = function(pid) {
+      const found = patients.find(p => p.pid === pid || p.cid === pid);
+      if (!found) return;
+
+      const pidEl = document.getElementById('patient-pid');
+      if (pidEl) {
+        pidEl.value = found.pid;
+        // Visual effect: เด้งขึ้นเด่นชัด
+        pidEl.classList.add('ring-4', 'ring-emerald-400', 'bg-emerald-200');
+        setTimeout(() => {
+          pidEl.classList.remove('ring-4', 'ring-emerald-400', 'bg-emerald-200');
+        }, 600);
+      }
+
+      const statusEl = document.getElementById('pid-status');
+      if (statusEl) {
+        statusEl.innerText = '✓ ' + found.pid;
+      }
+      const badge = document.getElementById('pid-status-badge');
+      if (badge) {
+        badge.innerText = `✓ PID: ${found.pid} (เด้งขึ้นอัตโนมัติ)`;
+        badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold';
+        badge.classList.remove('hidden');
+      }
+
+      document.getElementById('patient-name').value = found.name || '';
+      document.getElementById('patient-gender').value = found.gender || 'ชาย';
+      document.getElementById('patient-dob').value = found.dob || '';
+      document.getElementById('patient-age').value = found.age !== undefined && found.age !== null ? found.age : calculateAge(found.dob);
+      document.getElementById('clinical-hi').value = found.chronic || '';
+      document.getElementById('drug-allergy').value = found.allergy || '';
+
+      if (found.houseNo) {
+        document.getElementById('quick-house-no').value = found.houseNo;
+        renderFamilyMembers(found.houseNo, found.pid);
+      }
+
+      if (found.allergy && found.allergy.trim() !== '') {
+        showAllergyWarning(found.allergy);
+      } else {
+        hideAllergyWarning();
+      }
+
+      checkPatientRecentVisit(found.pid);
+      showToast(`เลือกคนไข้: ${found.name} (PID: ${found.pid}) ข้อมูลเด้งขึ้นเรียบร้อย`, 'success');
+    };
+
+    function lookupPatientByPid(pid) {
+      const found = patients.find(p => p.pid.toUpperCase() === pid.toUpperCase() || (p.cid && p.cid === pid));
+      if (found) {
+        document.getElementById('patient-name').value = found.name || '';
+        document.getElementById('patient-gender').value = found.gender || 'ชาย';
+        document.getElementById('patient-dob').value = found.dob || '';
+        document.getElementById('patient-age').value = found.age !== undefined && found.age !== null ? found.age : calculateAge(found.dob);
+        document.getElementById('clinical-hi').value = found.chronic || '';
+        document.getElementById('drug-allergy').value = found.allergy || '';
+        document.getElementById('pid-status').innerText = '✓ พบประวัติเดิม';
+
+        const badge = document.getElementById('pid-status-badge');
+        if (badge) {
+          badge.innerText = `✓ PID: ${found.pid}`;
+          badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold';
+          badge.classList.remove('hidden');
+        }
+
+        if (found.houseNo) {
+          document.getElementById('quick-house-no').value = found.houseNo;
+          renderFamilyMembers(found.houseNo, found.pid);
+        }
+
+        if (found.allergy && found.allergy.trim() !== '') {
+          showAllergyWarning(found.allergy);
+        } else {
+          hideAllergyWarning();
+        }
+
+        checkPatientRecentVisit(found.pid);
+      } else {
+        document.getElementById('pid-status').innerText = '+ PID ใหม่';
+        const badge = document.getElementById('pid-status-badge');
+        if (badge) {
+          badge.innerText = 'รหัสใหม่';
+          badge.className = 'text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold';
+          badge.classList.remove('hidden');
+        }
+        hideAllergyWarning();
+        hideRecentHistoryBanner();
+      }
+    }
+
+    function checkPatientRecentVisit(pid) {
+      const patientVisits = visits.filter(v => v.pid === pid || v.cid === pid);
+      if (patientVisits.length > 0) {
+        const last = patientVisits[0];
+        const rxSummary = last.rx.map(r => r.name).join(', ') || 'ไม่ได้สั่งยา';
+        document.getElementById('patient-recent-history-text').innerHTML = `
+          <strong>มาตรวจล่าสุด:</strong> ${last.date} | <strong>Dx:</strong> ${last.dxModern || last.dxThai || 'ไม่ได้ระบุ'} | <strong>ยา:</strong> ${rxSummary}
+        `;
+        document.getElementById('btn-view-patient-history').onclick = () => openPatientHistoryModal(pid);
+        document.getElementById('patient-recent-history-banner').classList.remove('hidden');
+      } else {
+        hideRecentHistoryBanner();
+      }
+    }
+
+    function hideRecentHistoryBanner() {
+      const el = document.getElementById('patient-recent-history-banner');
+      if (el) el.classList.add('hidden');
+    }
+
+    function showAllergyWarning(allergyText) {
+      const banner = document.getElementById('allergy-banner');
+      document.getElementById('allergy-display-text').innerText = 'ยาที่แพ้: ' + allergyText;
+      banner.classList.remove('hidden');
+    }
+
+    function hideAllergyWarning() {
+      const el = document.getElementById('allergy-banner');
+      if (el) el.classList.add('hidden');
+    }
+
+    window.selectPatientToVisit = function(pid) {
+      switchTab('screen-tab');
+      selectPatientByPid(pid);
+    };
 
     function onDrugSelectChange() {
       const select = document.getElementById('rx-select-drug');
@@ -1573,73 +1904,6 @@
     };
 
     // ================= ทะเบียนผู้ป่วย =================
-    function lookupPatient(cid) {
-      const found = patients.find(p => p.cid === cid);
-      if (found) {
-        document.getElementById('patient-name').value = found.name || '';
-        document.getElementById('patient-gender').value = found.gender || 'ชาย';
-        document.getElementById('patient-dob').value = found.dob || '';
-        document.getElementById('patient-age').value = found.age !== undefined && found.age !== null ? found.age : calculateAge(found.dob);
-        document.getElementById('clinical-hi').value = found.chronic || '';
-        document.getElementById('drug-allergy').value = found.allergy || '';
-        document.getElementById('cid-status').innerText = '✓ พบประวัติเดิม';
-        document.getElementById('cid-status').className = 'absolute right-3 top-2.5 text-xs text-emerald-600 font-bold';
-
-        if (found.houseNo) {
-          document.getElementById('quick-house-no').value = found.houseNo;
-          renderFamilyMembers(found.houseNo);
-        }
-
-        if (found.allergy && found.allergy.trim() !== '') {
-          showAllergyWarning(found.allergy);
-        } else {
-          hideAllergyWarning();
-        }
-
-        checkPatientRecentVisit(cid);
-      } else {
-        document.getElementById('cid-status').innerText = '+ ผู้ป่วยใหม่';
-        document.getElementById('cid-status').className = 'absolute right-3 top-2.5 text-xs text-amber-600 font-medium';
-        hideAllergyWarning();
-        hideRecentHistoryBanner();
-      }
-    }
-
-    function checkPatientRecentVisit(cid) {
-      const patientVisits = visits.filter(v => v.cid === cid);
-      if (patientVisits.length > 0) {
-        const last = patientVisits[0];
-        const rxSummary = last.rx.map(r => r.name).join(', ') || 'ไม่ได้สั่งยา';
-        document.getElementById('patient-recent-history-text').innerHTML = `
-          <strong>มาตรวจล่าสุด:</strong> ${last.date} | <strong>Dx:</strong> ${last.dxModern || last.dxThai || 'ไม่ได้ระบุ'} | <strong>ยา:</strong> ${rxSummary}
-        `;
-        document.getElementById('btn-view-patient-history').onclick = () => openPatientHistoryModal(cid);
-        document.getElementById('patient-recent-history-banner').classList.remove('hidden');
-      } else {
-        hideRecentHistoryBanner();
-      }
-    }
-
-    function hideRecentHistoryBanner() {
-      document.getElementById('patient-recent-history-banner').classList.add('hidden');
-    }
-
-    function showAllergyWarning(allergyText) {
-      const banner = document.getElementById('allergy-banner');
-      document.getElementById('allergy-display-text').innerText = 'ยาที่แพ้: ' + allergyText;
-      banner.classList.remove('hidden');
-    }
-
-    function hideAllergyWarning() {
-      document.getElementById('allergy-banner').classList.add('hidden');
-    }
-
-    window.selectPatientToVisit = function(cid) {
-      document.getElementById('cid').value = cid;
-      lookupPatient(cid);
-      switchTab('screen-tab');
-    };
-
     function renderPatientsTable() {
       const q = (document.getElementById('patient-search-input')?.value || '').toLowerCase();
       const tbody = document.getElementById('patients-table-body');
@@ -1647,6 +1911,7 @@
 
       const filtered = patients.filter(p => 
         (p.name && p.name.toLowerCase().includes(q)) || 
+        (p.pid && p.pid.toLowerCase().includes(q)) ||
         (p.cid && p.cid.includes(q)) ||
         (p.houseNo && p.houseNo.toLowerCase().includes(q))
       );
@@ -1662,7 +1927,7 @@
         const displayAge = p.age || calculateAge(p.dob) || '-';
         tr.innerHTML = `
           <td class="p-3 font-semibold text-emerald-800">${p.houseNo || '-'}</td>
-          <td class="p-3 font-mono font-medium text-slate-700">${p.cid}</td>
+          <td class="p-3 font-mono font-bold text-emerald-950 bg-emerald-50/70 rounded">${p.pid || '-'}</td>
           <td class="p-3 font-semibold text-slate-800">${p.name}</td>
           <td class="p-3 text-center text-slate-600">${p.gender || '-'}</td>
           <td class="p-3 text-center text-slate-600">${p.dob ? p.dob + ' ' : ''}(${displayAge} ปี)</td>
@@ -1672,14 +1937,14 @@
           </td>
           <td class="p-3 text-slate-600">${p.chronic || '-'}</td>
           <td class="p-3 text-center space-x-1 whitespace-nowrap">
-            <button onclick="openPatientHistoryModal('${p.cid}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-medium transition" title="ดูประวัติการรักษาทั้งหมดของคนนี้">
+            <button onclick="openPatientHistoryModal('${p.pid}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-medium transition" title="ดูประวัติการรักษาทั้งหมดของคนนี้">
               <i class="fa-solid fa-folder-open"></i> ประวัติ
             </button>
-            <button onclick="selectPatientToVisit('${p.cid}')" class="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg font-medium transition" title="ตรวจรักษาคนนี้">
+            <button onclick="selectPatientToVisit('${p.pid}')" class="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg font-medium transition" title="ตรวจรักษาคนนี้">
               <i class="fa-solid fa-stethoscope"></i> ตรวจ
             </button>
             ${currentUser?.role === 'admin' ? `
-              <button onclick="deletePatient('${p.cid}')" class="px-2 py-1 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบ">
+              <button onclick="deletePatient('${p.pid}')" class="px-2 py-1 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="ลบ">
                 <i class="fa-solid fa-trash"></i>
               </button>
             ` : ''}
@@ -1690,14 +1955,14 @@
     }
 
     // ================= ดูประวัติรายบุคคล =================
-    window.openPatientHistoryModal = function(cid) {
-      const patient = patients.find(p => p.cid === cid) || { name: 'ไม่พบข้อมูล', cid: cid };
-      document.getElementById('modal-patient-history-subtitle').innerText = `ผู้ป่วย: ${patient.name} | บ้านเลขที่: ${patient.houseNo || '-'} | เลขบัตร: ${patient.cid}`;
+    window.openPatientHistoryModal = function(pid) {
+      const patient = patients.find(p => p.pid === pid || p.cid === pid) || { name: 'ไม่พบข้อมูล', pid: pid, houseNo: '-' };
+      document.getElementById('modal-patient-history-subtitle').innerText = `ผู้ป่วย: ${patient.name} | บ้านเลขที่: ${patient.houseNo || '-'} | รหัส PID: ${patient.pid || pid}`;
 
       const summaryDiv = document.getElementById('modal-patient-info-summary');
       summaryDiv.innerHTML = `
         <div><span class="text-slate-400 block">บ้านเลขที่ / ที่อยู่:</span><strong>${patient.houseNo ? 'บ้านเลขที่ ' + patient.houseNo + ' ' : ''}${patient.address || '-'}</strong></div>
-        <div><span class="text-slate-400 block">เพศ / อายุ:</span><strong>${patient.gender || '-'} / ${patient.age || calculateAge(patient.dob) || '-'} ปี</strong></div>
+        <div><span class="text-slate-400 block">รหัส PID / เพศ / อายุ:</span><strong>${patient.pid || '-'} / ${patient.gender || '-'} / ${patient.age || calculateAge(patient.dob) || '-'} ปี</strong></div>
         <div><span class="text-slate-400 block text-rose-600">ประวัติแพ้ยา:</span><strong class="text-rose-700">${patient.allergy || 'ไม่มี'}</strong></div>
         <div><span class="text-slate-400 block">สิทธิรักษา / โรคประจำตัว:</span><strong>${patient.privilege || 'บัตรทอง'} / ${patient.chronic || '-'}</strong></div>
       `;
@@ -1705,7 +1970,7 @@
       const timelineDiv = document.getElementById('patient-history-timeline');
       timelineDiv.innerHTML = '';
 
-      const pVisits = visits.filter(v => v.cid === cid);
+      const pVisits = visits.filter(v => v.pid === pid || (patient.cid && v.cid === patient.cid));
       if (pVisits.length === 0) {
         timelineDiv.innerHTML = '<div class="p-6 text-center text-slate-400 bg-slate-50 rounded-xl border">ยังไม่มีประวัติการบันทึกตรวจรักษาในระบบ</div>';
       } else {
@@ -1756,18 +2021,18 @@
     window.previewOpdCard = function(visitId) {
       const v = visits.find(item => item.id === visitId);
       if (!v) {
-        alert('ไม่พบข้อมูลการตรวจรอบนี้');
+        showToast('ไม่พบข้อมูลการตรวจรอบนี้', 'warning');
         return;
       }
-      const p = patients.find(item => item.cid === v.cid) || {};
+      const p = patients.find(item => (v.pid && item.pid === v.pid) || (v.cid && item.cid === v.cid)) || {};
 
       document.getElementById('opd-date').innerText = v.date;
-      document.getElementById('opd-cid').innerText = v.cid;
+      document.getElementById('opd-pid').innerText = v.pid || p.pid || '-';
       document.getElementById('opd-name').innerText = v.name;
       const displayAge = p.age || calculateAge(p.dob) || '-';
       document.getElementById('opd-gender-age').innerText = `${p.gender || '-'} / ${displayAge} ปี`;
-      document.getElementById('opd-address').innerText = `${p.houseNo ? 'บ้านเลขที่ ' + p.houseNo + ' ' : ''}${p.address || '-'}`;
-      document.getElementById('opd-privilege').innerText = p.privilege || 'บัตรทอง (UCS)';
+      document.getElementById('opd-address').innerText = `${p.houseNo || v.houseNo ? 'บ้านเลขที่ ' + (p.houseNo || v.houseNo) + ' ' : ''}${p.address || '-'}`;
+      document.getElementById('opd-privilege').innerText = p.privilege || v.privilege || 'บัตรทอง (UCS)';
       document.getElementById('opd-allergy').innerText = p.allergy || 'ปฏิเสธประวัติแพ้ยา';
       document.getElementById('opd-chronic').innerText = v.hi || p.chronic || 'ไม่มี';
 
@@ -1915,22 +2180,26 @@
 
       const usageList = Object.values(usageMap);
       if (usageList.length === 0) {
-        alert('ไม่มีข้อมูลการจ่ายยาในเดือนนี้');
+        showToast('ไม่มีข้อมูลการจ่ายยาในเดือนนี้', 'warning');
         return;
       }
 
-      let csv = `\uFEFFรหัสยา,ชื่อรายการยา,ประเภท,จำนวนที่จ่ายในเดือน(${selectedMonth}),หน่วยนับ,สต็อกคงเหลือปัจจุบัน,รหัสแผนไทย\n`;
+      let csv = `﻿รหัสยา,ชื่อรายการยา,ประเภท,จำนวนที่จ่ายในเดือน(${selectedMonth}),หน่วยนับ,สต็อกคงเหลือปัจจุบัน,รหัสแผนไทย
+`;
       usageList.forEach(item => {
-        csv += `"${item.id}","${item.name}","${item.type}","${item.qty}","${item.unit}","${item.currentStock}","${item.uCode}"\n`;
+        csv += `"${item.id}","${item.name}","${item.type}","${item.qty}","${item.unit}","${item.currentStock}","${item.uCode}"
+`;
       });
 
       downloadFile(csv, `PangPoLoh_Drug_Usage_${selectedMonth}.csv`, 'text/csv;charset=utf-8;');
+      showToast('ส่งออกรายงานการใช้ยาสำเร็จ', 'success');
     };
 
     // ================= นำเข้ารายชื่อผู้ป่วย =================
     window.downloadCSVTemplate = function() {
-      const template = '\uFEFFhouseNo,cid,name,gender,dob,age,privilege,address,allergy,chronic\n12,1509900111111,นายสมชาย สุขเกษม,ชาย,1985-04-12,39,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,Amoxicillin,ความดันโลหิตสูง\n12,1509900222222,นางมะลิ ดอยสวย,หญิง,1970-08-25,54,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,,เบาหวาน\n';
+      const template = "\uFEFFpid,houseNo,name,gender,dob,age,privilege,address,allergy,chronic,cid\nPID-0001,12,นายสมชาย สุขเกษม,ชาย,1985-04-12,39,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,Amoxicillin,ความดันโลหิตสูง,1509900111111\nPID-0002,12,นางมะลิ ดอยสวย,หญิง,1970-08-25,54,บัตรทอง (UCS),หมู่ 2 หย่อมบ้านปางโปโล,,เบาหวาน,\n";
       downloadFile(template, 'Template_Patients_PangPoLoh.csv', 'text/csv;charset=utf-8;');
+      showToast('ดาวน์โหลดแม่แบบ CSV เรียบร้อย', 'info');
     };
 
     window.handlePatientCSVUpload = function(event) {
@@ -1947,9 +2216,9 @@
     };
 
     function processPatientsCSV(csvText) {
-      const lines = csvText.split(/\r\n|\n/).filter(line => line.trim() !== '');
+      const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
       if (lines.length <= 1) {
-        alert('ไฟล์ไม่มีข้อมูลผู้ป่วย');
+        showToast('ไฟล์ไม่มีข้อมูลผู้ป่วย', 'warning');
         return;
       }
 
@@ -1973,6 +2242,7 @@
       };
 
       const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+      const pidIdx = headers.findIndex(h => h === 'pid' || h.includes('pid') || h.includes('รหัส'));
       const houseIdx = headers.findIndex(h => h.includes('house') || h.includes('บ้าน'));
       const cidIdx = headers.findIndex(h => h === 'cid' || h.includes('เลข') || h.includes('13'));
       const nameIdx = headers.findIndex(h => h === 'name' || h.includes('ชื่อ'));
@@ -1984,8 +2254,8 @@
       const allergyIdx = headers.findIndex(h => h === 'allergy' || h.includes('แพ้'));
       const chronicIdx = headers.findIndex(h => h === 'chronic' || h.includes('ประจำตัว'));
 
-      if (cidIdx === -1 || nameIdx === -1) {
-        alert('รูปแบบไฟล์ไม่ถูกต้อง: ต้องมีคอลัมน์เลข 13 หลัก (cid) และชื่อ-สกุล (name)');
+      if (nameIdx === -1) {
+        showToast('รูปแบบไฟล์ไม่ถูกต้อง: ต้องมีคอลัมน์ชื่อ-สกุล (name)', 'error');
         return;
       }
 
@@ -1994,17 +2264,19 @@
 
       for (let i = 1; i < lines.length; i++) {
         const row = parseCSVLine(lines[i]);
-        const cid = row[cidIdx];
         const name = row[nameIdx];
-        if (!cid || !name) continue;
+        if (!name) continue;
 
+        const pid = (pidIdx >= 0 && row[pidIdx]) ? row[pidIdx] : generateNextPID();
+        const cid = (cidIdx >= 0 && row[cidIdx]) ? row[cidIdx] : '';
         const dobVal = dobIdx >= 0 ? row[dobIdx] : '';
         const parsedAge = ageIdx >= 0 ? parseInt(row[ageIdx]) : calculateAge(dobVal);
 
         const patientObj = {
+          pid: pid,
           houseNo: houseIdx >= 0 && row[houseIdx] ? row[houseIdx] : '1',
-          cid: cid,
           name: name,
+          cid: cid,
           gender: genderIdx >= 0 && row[genderIdx] ? row[genderIdx] : 'ชาย',
           dob: dobVal,
           age: !isNaN(parsedAge) ? parsedAge : '',
@@ -2014,7 +2286,7 @@
           chronic: chronicIdx >= 0 ? row[chronicIdx] : ''
         };
 
-        const existingIdx = patients.findIndex(p => p.cid === cid);
+        const existingIdx = patients.findIndex(p => (pid && p.pid === pid) || (cid && p.cid === cid));
         if (existingIdx >= 0) {
           patients[existingIdx] = patientObj;
           countUpdated++;
@@ -2027,11 +2299,14 @@
       saveStorage('patients', patients);
       renderPatientsTable();
       updateHouseDatalist();
-      alert(`นำเข้ารายชื่อสำเร็จ!\n• เพิ่มใหม่: ${countAdded} ราย\n• อัปเดตข้อมูลเดิม: ${countUpdated} ราย`);
+      showToast(`นำเข้ารายชื่อสำเร็จ! เพิ่มใหม่ ${countAdded} ราย, อัปเดต ${countUpdated} ราย`, 'success');
     }
 
     window.openAddPatientModal = function() {
       document.getElementById('form-add-patient').reset();
+      const currentHouse = document.getElementById('quick-house-no')?.value || '';
+      document.getElementById('m-patient-houseno').value = currentHouse;
+      document.getElementById('m-patient-pid').value = generateNextPID();
       document.getElementById('modal-patient').classList.remove('hidden');
     };
 
@@ -2042,16 +2317,18 @@
     document.getElementById('form-add-patient').addEventListener('submit', (e) => {
       e.preventDefault();
       const houseNo = document.getElementById('m-patient-houseno').value.trim();
-      const cid = document.getElementById('m-patient-cid').value.trim();
+      const pid = document.getElementById('m-patient-pid').value.trim() || generateNextPID();
       const name = document.getElementById('m-patient-name').value.trim();
+      const cid = document.getElementById('m-patient-cid').value.trim();
       const dobVal = document.getElementById('m-patient-dob').value;
       const ageVal = parseInt(document.getElementById('m-patient-age').value) || calculateAge(dobVal);
 
-      const existingIndex = patients.findIndex(p => p.cid === cid);
+      const existingIndex = patients.findIndex(p => p.pid === pid);
       const newPatient = {
+        pid: pid,
         houseNo: houseNo,
-        cid: cid,
         name: name,
+        cid: cid,
         gender: document.getElementById('m-patient-gender').value,
         dob: dobVal,
         age: ageVal !== '' ? ageVal : '',
@@ -2067,20 +2344,36 @@
         patients.push(newPatient);
       }
 
-      saveStorage('patients', patients);
+            saveStorage('patients', patients);
+      if (isCloudConnected && firebaseDb) {
+        try {
+          firebaseDb.collection('patients').doc(newPatient.pid).set(newPatient, { merge: true });
+        } catch (e) {}
+      }
       renderPatientsTable();
       updateHouseDatalist();
       closePatientModal();
-      alert('บันทึกข้อมูลผู้ป่วยเรียบร้อย');
+      showToast(`บันทึกข้อมูลผู้ป่วย ${name} (PID: ${pid}) เรียบร้อย`, 'success');
+
+      // ถ้าอยู่หน้าบันทึกตรวจ ให้เลือกคนนี้ทันที
+      document.getElementById('quick-house-no').value = houseNo;
+      renderFamilyMembers(houseNo, pid);
+      selectPatientByPid(pid);
     });
 
-    window.deletePatient = function(cid) {
-      if (confirm(`ยืนยันการลบประวัติผู้ป่วยเลข ${cid}?`)) {
-        patients = patients.filter(p => p.cid !== cid);
+    window.deletePatient = function(pid) {
+      showConfirmModal(`ยืนยันการลบประวัติผู้ป่วยรหัส ${pid}?`, () => {
+                patients = patients.filter(p => p.pid !== pid && p.cid !== pid);
         saveStorage('patients', patients);
+        if (isCloudConnected && firebaseDb) {
+          try {
+            firebaseDb.collection('patients').doc(pid).delete();
+          } catch (e) {}
+        }
         renderPatientsTable();
         updateHouseDatalist();
-      }
+        showToast('ลบข้อมูลผู้ป่วยเรียบร้อย', 'info');
+      });
     };
 
     // ================= ระบบยา & สั่งจ่าย & ตรวจแพ้ยา =================
@@ -2104,7 +2397,7 @@
       const sig = document.getElementById('rx-sig').value.trim();
 
       if (!drugId || qty <= 0) {
-        alert('กรุณาเลือกยาและระบุจำนวนที่ถูกต้อง');
+        showToast('กรุณาเลือกยาและระบุจำนวนที่ถูกต้อง', 'warning');
         return;
       }
 
@@ -2113,7 +2406,7 @@
 
       const patientAllergy = document.getElementById('drug-allergy').value.toLowerCase();
       if (patientAllergy && patientAllergy.includes(drug.name.toLowerCase().split(' ')[0])) {
-        alert(`❌ อันตรายร้ายแรง! ผู้ป่วยมีประวัติแพ้ยา "${drug.name}" ระบบบล็อกไม่ให้สั่งจ่ายยานี้`);
+        showToast(`❌ อันตรายร้ายแรง! ผู้ป่วยมีประวัติแพ้ยา "${drug.name}" ระบบบล็อกไม่ให้สั่งจ่ายยานี้`, 'error');
         return;
       }
 
@@ -2121,7 +2414,7 @@
       const totalWanted = (alreadyInList ? alreadyInList.qty : 0) + qty;
 
       if (totalWanted > drug.stock) {
-        alert(`ยอดคงเหลือไม่พอ! มี "${drug.name}" อยู่เพียง ${drug.stock} ${drug.unit}`);
+        showToast(`ยอดคงเหลือไม่พอ! มี "${drug.name}" อยู่เพียง ${drug.stock} ${drug.unit}`, 'warning');
         return;
       }
 
@@ -2146,6 +2439,7 @@
       renderPrescriptionTable();
       document.getElementById('rx-qty').value = 10;
       document.getElementById('rx-sig').value = '';
+      showToast(`เพิ่มยา ${drug.name} x ${qty} ${drug.unit}`, 'success');
     };
 
     function updateDxThaiAuto() {
@@ -2202,13 +2496,13 @@
     // ================= บันทึกตรวจรักษา & ตัดสต็อก =================
     function handleSaveVisit(e) {
       e.preventDefault();
-      const cid = document.getElementById('cid').value.trim();
+      const pid = document.getElementById('patient-pid').value.trim() || generateNextPID();
       const patientName = document.getElementById('patient-name').value.trim();
       const cc = document.getElementById('clinical-cc').value.trim();
-      const houseNo = document.getElementById('quick-house-no').value.trim();
+      const houseNo = document.getElementById('quick-house-no').value.trim() || '1';
 
-      if (!cid || !patientName || !cc) {
-        alert('กรุณากรอกข้อมูลสำคัญ (เลข 13 หลัก, ชื่อ-สกุล, อาการ CC)');
+      if (!patientName || !cc) {
+        showToast('กรุณากรอกข้อมูลสำคัญ (ชื่อ-สกุลผู้ป่วย, อาการสำคัญ CC)', 'warning');
         return;
       }
 
@@ -2223,11 +2517,12 @@
       const dobVal = document.getElementById('patient-dob').value;
       const ageVal = parseInt(document.getElementById('patient-age').value) || calculateAge(dobVal);
 
-      const patientIndex = patients.findIndex(p => p.cid === cid);
+      const patientIndex = patients.findIndex(p => p.pid === pid);
       const patientData = {
-        houseNo: houseNo || (patientIndex >= 0 ? patients[patientIndex].houseNo : '1'),
-        cid: cid,
+        pid: pid,
+        houseNo: houseNo,
         name: patientName,
+        cid: patientIndex >= 0 ? (patients[patientIndex].cid || '') : '',
         gender: document.getElementById('patient-gender').value,
         dob: dobVal,
         age: ageVal !== '' ? ageVal : '',
@@ -2247,7 +2542,8 @@
       const visitRecord = {
         id: newVisitId,
         date: document.getElementById('visit-date').value,
-        cid: cid,
+        pid: pid,
+        cid: patientData.cid || '',
         name: patientName,
         houseNo: patientData.houseNo,
         privilege: patientData.privilege,
@@ -2273,6 +2569,25 @@
       visits.unshift(visitRecord);
       saveStorage('visits', visits);
 
+      // ซิงก์ขึ้น Firebase แบบ Real-time ทันที (ตัดสต็อกยาและบันทึกประวัติทุกเครื่อง)
+      if (isCloudConnected && firebaseDb) {
+        try {
+          // 1. บันทึกประวัติการตรวจ
+          firebaseDb.collection('visits').doc(newVisitId).set(visitRecord);
+          // 2. บันทึก/อัปเดตข้อมูลคนไข้
+          firebaseDb.collection('patients').doc(patientData.pid).set(patientData, { merge: true });
+          // 3. ตัดสต็อกยาบนคลาวด์แบบ Real-time (ทุกเครื่องจะเห็นสต็อกลดลงทันที)
+          currentPrescription.forEach(item => {
+            const targetDrug = inventory.find(d => d.id === item.id);
+            if (targetDrug) {
+              firebaseDb.collection('drugs').doc(item.id).set(targetDrug, { merge: true });
+            }
+          });
+        } catch (errSync) {
+          console.warn('Cloud sync error on save visit:', errSync);
+        }
+      }
+
       renderDrugDropdown();
       renderInventoryTable();
       renderPatientsTable();
@@ -2280,9 +2595,9 @@
       checkLowStockAlert();
       updateHouseDatalist();
 
-      if (confirm('✓ บันทึกการตรวจรักษาและตัดสต็อกยาเรียบร้อย!\n\nต้องการเปิดหน้าพิมพ์ใบตรวจ OPD Card ทันทีเลยหรือไม่?')) {
+      showConfirmModal('✓ บันทึกตรวจและตัดสต็อกยาเรียบร้อย!\n\nต้องการเปิดหน้าพิมพ์ใบตรวจ OPD Card ทันทีเลยหรือไม่?', () => {
         previewOpdCard(newVisitId);
-      }
+      }, 'บันทึกสำเร็จ');
 
       resetVisitForm();
     }
@@ -2295,8 +2610,12 @@
       hideAllergyWarning();
       hideRecentHistoryBanner();
       document.getElementById('drug-clinical-preview-box').classList.add('hidden');
-      document.getElementById('cid-status').innerText = '';
-      document.getElementById('family-members-container').innerHTML = '<span class="text-xs text-slate-400 italic px-2">รายชื่อสมาชิกในบ้านจะปรากฏที่นี่...</span>';
+      document.getElementById('pid-status').innerText = '';
+      const badge = document.getElementById('pid-status-badge');
+      if (badge) badge.classList.add('hidden');
+      document.getElementById('family-members-container').innerHTML = '<span class="text-xs text-slate-400 italic px-2">พิมพ์บ้านเลขที่ด้านซ้ายเพื่อแสดงรายชื่อสมาชิกในบ้าน...</span>';
+      const countEl = document.getElementById('house-members-count');
+      if (countEl) countEl.innerText = '';
     };
 
     // ================= คลังยา =================
@@ -2400,12 +2719,22 @@
       if (drugId) {
         const idx = inventory.findIndex(d => d.id === drugId);
         if (idx >= 0) inventory[idx] = { ...inventory[idx], ...drugData };
+        showToast(`แก้ไขข้อมูลยา ${drugData.name} สำเร็จ`, 'success');
       } else {
         const newId = 'D' + String(inventory.length + 1).padStart(2, '0');
         inventory.push({ id: newId, ...drugData });
+        showToast(`เพิ่มยา ${drugData.name} เข้าคลังสำเร็จ`, 'success');
       }
 
-      saveStorage('drugs', inventory);
+            saveStorage('drugs', inventory);
+      if (isCloudConnected && firebaseDb) {
+        try {
+          const savedDrug = inventory.find(d => d.id === (drugId || newId));
+          if (savedDrug) {
+            firebaseDb.collection('drugs').doc(savedDrug.id).set(savedDrug, { merge: true });
+          }
+        } catch (e) {}
+      }
       renderInventoryTable();
       renderDrugDropdown();
       checkLowStockAlert();
@@ -2413,33 +2742,41 @@
     });
 
     window.deleteDrug = function(id) {
-      if (confirm('ต้องการลบยานี้ออกจากคลังหรือไม่?')) {
-        inventory = inventory.filter(d => d.id !== id);
+      showConfirmModal('ต้องการลบยานี้ออกจากคลังหรือไม่?', () => {
+                inventory = inventory.filter(d => d.id !== id);
         saveStorage('drugs', inventory);
+        if (isCloudConnected && firebaseDb) {
+          try {
+            firebaseDb.collection('drugs').doc(id).delete();
+          } catch (e) {}
+        }
         renderInventoryTable();
         renderDrugDropdown();
         checkLowStockAlert();
-      }
+        showToast('ลบรายการยาเรียบร้อย', 'info');
+      });
     };
 
     window.clearAllDrugs = function() {
-      if (confirm('⚠️ ต้องการล้างข้อมูลยาทั้งหมดเพื่อเริ่มนับสต็อกใหม่บนดอยใช่หรือไม่?')) {
+      showConfirmModal('⚠️ ต้องการล้างข้อมูลยาทั้งหมดเพื่อเริ่มนับสต็อกใหม่บนดอยใช่หรือไม่?', () => {
         inventory = [];
         saveStorage('drugs', inventory);
         renderInventoryTable();
         renderDrugDropdown();
         checkLowStockAlert();
-      }
+        showToast('ล้างสต็อกยาทั้งหมดเรียบร้อย', 'info');
+      });
     };
 
     window.resetDefaultDrugs = function() {
-      if (confirm('คืนค่ารายการยาตั้งต้น 8 ชนิดใช่หรือไม่?')) {
+      showConfirmModal('คืนค่ารายการยาตั้งต้น 8 ชนิดใช่หรือไม่?', () => {
         inventory = [...DEFAULT_DRUGS];
         saveStorage('drugs', inventory);
         renderInventoryTable();
         renderDrugDropdown();
         checkLowStockAlert();
-      }
+        showToast('คืนค่ายาตั้งต้นเรียบร้อย', 'success');
+      });
     };
 
     // ================= ปรึกษาแพทย์ AI =================
@@ -2457,7 +2794,7 @@
       geminiApiKey = val;
       localStorage.setItem(STORAGE_KEY_PREFIX + 'gemini_api_key', geminiApiKey);
       closeApiKeyModal();
-      alert('บันทึก API Key เรียบร้อย');
+      showToast('บันทึก API Key เรียบร้อย', 'success');
     };
 
     window.clearApiKey = function() {
@@ -2465,7 +2802,7 @@
       localStorage.removeItem(STORAGE_KEY_PREFIX + 'gemini_api_key');
       document.getElementById('gemini-api-key-input').value = '';
       closeApiKeyModal();
-      alert('ลบ API Key เรียบร้อย');
+      showToast('ลบ API Key เรียบร้อย', 'info');
     };
 
     window.showOfflineGuide = function(topic) {
@@ -2486,7 +2823,7 @@
       const pr = document.getElementById('vitals-pr').value;
 
       if (!cc) {
-        alert('กรุณากรอกอาการสำคัญ (CC) ในห้องตรวจก่อนกดปรึกษา AI ครับ');
+        showToast('กรุณากรอกอาการสำคัญ (CC) ในห้องตรวจก่อนกดปรึกษา AI ครับ', 'warning');
         return;
       }
 
@@ -2574,13 +2911,13 @@
       if (container.lastChild) container.removeChild(container.lastChild);
     }
 
-    // ================= ประวัติการตรวจ & ส่งออก (MY PCU) =================
+    // ================= ประวัติการตรวจ & ส่งออก =================
     function renderHistoryTable() {
       const tbody = document.getElementById('history-table-body');
       tbody.innerHTML = '';
 
       if (visits.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-400">ยังไม่มีบันทึกประวัติการตรวจ</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-slate-400">ยังไม่มีบันทึกประวัติการตรวจ</td></tr>';
         return;
       }
 
@@ -2590,7 +2927,8 @@
         tr.className = 'hover:bg-slate-50';
         tr.innerHTML = `
           <td class="p-3 text-slate-600 whitespace-nowrap">${v.date}</td>
-          <td class="p-3 font-mono text-slate-700 whitespace-nowrap">${v.cid}</td>
+          <td class="p-3 font-semibold text-emerald-800 whitespace-nowrap">${v.houseNo || '-'}</td>
+          <td class="p-3 font-mono font-bold text-emerald-950 bg-emerald-50/70 rounded whitespace-nowrap">${v.pid || '-'}</td>
           <td class="p-3 font-semibold text-slate-800 whitespace-nowrap">${v.name}</td>
           <td class="p-3 text-slate-600 max-w-xs truncate" title="${v.cc}">${v.cc}</td>
           <td class="p-3 font-medium text-slate-700">${v.dxModern || '-'}</td>
@@ -2610,52 +2948,59 @@
     }
 
     window.deleteVisit = function(index) {
-      if (confirm('ต้องการลบประวัติการตรวจรายการนี้ใช่หรือไม่?')) {
+      showConfirmModal('ต้องการลบประวัติการตรวจรายการนี้ใช่หรือไม่?', () => {
         visits.splice(index, 1);
         saveStorage('visits', visits);
         renderHistoryTable();
-      }
+        showToast('ลบประวัติการตรวจเรียบร้อย', 'info');
+      });
     };
 
     // ส่งออกไฟล์ CSV เรียงตามลำดับหน้าต่างของ MY PCU
     window.exportToMYPCU_CSV = function() {
       if (visits.length === 0) {
-        alert('ยังไม่มีข้อมูลการตรวจสำหรับการส่งออก');
+        showToast('ยังไม่มีข้อมูลการตรวจสำหรับการส่งออก', 'warning');
         return;
       }
-      let csv = '\uFEFFเลข13หลัก,วันที่รับบริการ,สิทธิรักษา,บ้านเลขที่,ชื่อสกุล,อาการสำคัญ_CC,ประวัติ_PI,BT_อุณหภูมิ,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,PR,Dxหลัก_แผนปัจจุบัน,Dxร่วม_แผนไทยUCode,รายการยาและจำนวนที่สั่งจ่าย,ผู้ตรวจ\n';
+      let csv = "\uFEFFรหัสPID,บ้านเลขที่,ชื่อสกุล,วันที่รับบริการ,สิทธิรักษา,อาการสำคัญ_CC,ประวัติ_PI,BT_อุณหภูมิ,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,PR,Dxหลัก_แผนปัจจุบัน,Dxร่วม_แผนไทยUCode,รายการยาและจำนวนที่สั่งจ่าย,ผู้ตรวจ,เลข13หลัก\n";
       visits.forEach(v => {
         const rxText = v.rx.map(r => `${r.name} x${r.qty}`).join(' | ');
         const vit = v.vitals || {};
-        csv += `"${v.cid}","${v.date}","${v.privilege||'บัตรทอง'}","${v.houseNo||''}","${v.name}","${v.cc}","${v.pi||''}","${vit.temp||''}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${vit.pr||''}","${v.dxModern||''}","${v.dxThai||''}","${rxText}","${v.provider}"\n`;
+        csv += `"${v.pid||''}","${v.houseNo||''}","${v.name}","${v.date}","${v.privilege||'บัตรทอง'}","${v.cc}","${v.pi||''}","${vit.temp||''}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${vit.pr||''}","${v.dxModern||''}","${v.dxThai||''}","${rxText}","${v.provider}","${v.cid||''}"
+`;
       });
       downloadFile(csv, `MYPCU_Claim_Export_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+      showToast('ส่งออกไฟล์ MY PCU สำเร็จ', 'success');
     };
 
     window.exportToCSV = function() {
       if (visits.length === 0) {
-        alert('ยังไม่มีข้อมูลการตรวจสำหรับการส่งออก');
+        showToast('ยังไม่มีข้อมูลการตรวจสำหรับการส่งออก', 'warning');
         return;
       }
-      let csv = '\uFEFFวันที่,เลข13หลัก,บ้านเลขที่,ชื่อสกุล,BT,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,CC,HI,Dxแผนปัจจุบัน,Dxแผนไทย,รายการยาและวิธีรับประทาน,ผู้ตรวจ\n';
+      let csv = "\uFEFFวันที่,รหัสPID,บ้านเลขที่,ชื่อสกุล,BT,น้ำหนัก,ส่วนสูง,BMI,SBP,DBP,CC,HI,Dxแผนปัจจุบัน,Dxแผนไทย,รายการยาและวิธีรับประทาน,ผู้ตรวจ\n";
       visits.forEach(v => {
         const rxText = v.rx.map(r => `${r.name} x${r.qty} (${r.sig||''}) [${r.warning||''}]`).join('; ');
         const vit = v.vitals || {};
-        csv += `"${v.date}","${v.cid}","${v.houseNo||''}","${v.name}","${vit.temp||''}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${v.cc}","${v.hi}","${v.dxModern}","${v.dxThai}","${rxText}","${v.provider}"\n`;
+        csv += `"${v.date}","${v.pid||''}","${v.houseNo||''}","${v.name}","${vit.temp||''}","${vit.weight||''}","${vit.height||''}","${vit.bmi||''}","${vit.sbp||''}","${vit.dbp||''}","${v.cc}","${v.hi||''}","${v.dxModern||''}","${v.dxThai||''}","${rxText}","${v.provider}"
+`;
       });
       downloadFile(csv, `PangPoLoh_Visits_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+      showToast('ส่งออกรายงานทั่วไปสำเร็จ', 'success');
     };
 
     window.exportPatientsToCSV = function() {
       if (patients.length === 0) {
-        alert('ไม่มีข้อมูลรายชื่อผู้ป่วย');
+        showToast('ไม่มีข้อมูลรายชื่อผู้ป่วย', 'warning');
         return;
       }
-      let csv = '\uFEFFhouseNo,cid,name,gender,dob,age,privilege,address,allergy,chronic\n';
+      let csv = "\uFEFFpid,houseNo,name,gender,dob,age,privilege,address,allergy,chronic,cid\n";
       patients.forEach(p => {
-        csv += `"${p.houseNo||''}","${p.cid}","${p.name}","${p.gender||''}","${p.dob||''}","${p.age||''}","${p.privilege||'บัตรทอง (UCS)'}","${p.address||''}","${p.allergy||''}","${p.chronic||''}"\n`;
+        csv += `"${p.pid||''}","${p.houseNo||''}","${p.name}","${p.gender||''}","${p.dob||''}","${p.age||''}","${p.privilege||'บัตรทอง (UCS)'}","${p.address||''}","${p.allergy||''}","${p.chronic||''}","${p.cid||''}"
+`;
       });
       downloadFile(csv, `PangPoLoh_Patients_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8;');
+      showToast('ส่งออกรายชื่อผู้ป่วยสำเร็จ', 'success');
     };
 
     window.backupAllDataJSON = function() {
@@ -2669,6 +3014,7 @@
       };
       const json = JSON.stringify(fullBackup, null, 2);
       downloadFile(json, `PangPoLoh_FullBackup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+      showToast('สำรองฐานข้อมูลสำเร็จ', 'success');
     };
 
     function downloadFile(content, fileName, mimeType) {
@@ -2719,7 +3065,7 @@
       e.preventDefault();
       const u = document.getElementById('m-user-username').value.trim().toLowerCase();
       if (users.find(x => x.username.toLowerCase() === u)) {
-        alert('ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว');
+        showToast('ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว', 'warning');
         return;
       }
       users.push({
@@ -2732,15 +3078,510 @@
       saveStorage('users', users);
       renderUsersTable();
       closeUserModal();
+      showToast('เพิ่มผู้ใช้งานใหม่เรียบร้อย', 'success');
     });
 
     window.deleteUser = function(index) {
-      if (confirm('ต้องการลบผู้ใช้งานนี้ใช่หรือไม่?')) {
+      showConfirmModal('ต้องการลบผู้ใช้งานนี้ใช่หรือไม่?', () => {
         users.splice(index, 1);
         saveStorage('users', users);
         renderUsersTable();
-      }
+        showToast('ลบผู้ใช้งานเรียบร้อย', 'info');
+      });
     };
+
+    // ================= REAL-TIME CLOUD SYNC (FIREBASE FIRESTORE) =================
+
+    // ฝัง Firebase Config ถาวร (ถ้ามีค่าตรงนี้ ทุกเครื่องที่เปิดไฟล์จะเชื่อมต่อทันทีโดยไม่ต้องทำอะไรเลย)
+    const EMBEDDED_FIREBASE_CONFIG = {
+      "apiKey": "AIzaSyAo_v_A3Gg3V0S7ph99GEF9PGZCyBxX8og",
+      "authDomain": "pangpoloh-health.firebaseapp.com",
+      "projectId": "pangpoloh-health",
+      "storageBucket": "pangpoloh-health.firebasestorage.app",
+      "messagingSenderId": "542923890647",
+      "appId": "1:542923890647:web:3d954c351621549062f592",
+      "measurementId": "G-8XFVSN72XR"
+};
+
+    function checkURLCloudConfig() {
+      // 1. ถ้ามี Config ฝังอยู่ในไฟล์ ให้ใช้ทันที
+      if (EMBEDDED_FIREBASE_CONFIG && EMBEDDED_FIREBASE_CONFIG.projectId) {
+        localStorage.setItem(STORAGE_KEY_PREFIX + 'firebase_config', JSON.stringify(EMBEDDED_FIREBASE_CONFIG));
+        return EMBEDDED_FIREBASE_CONFIG;
+      }
+
+      // 2. ถ้าเปิดมาผ่านลิงก์หรือ QR Code ที่มี #config=...
+      const hash = window.location.hash;
+      if (hash && hash.includes('config=')) {
+        try {
+          const b64 = hash.split('config=')[1];
+          const cfgStr = decodeURIComponent(atob(b64));
+          const cfg = JSON.parse(cfgStr);
+          if (cfg && cfg.projectId) {
+            localStorage.setItem(STORAGE_KEY_PREFIX + 'firebase_config', JSON.stringify(cfg));
+            // ลบ hash ออกจาก URL เพื่อความสวยงาม
+            try {
+              window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            } catch (e) {}
+            showToast('✓ เชื่อมต่อฐานข้อมูลคลาวด์จากลิงก์ที่แชร์มาสำเร็จ!', 'success');
+            return cfg;
+          }
+        } catch (err) {
+          console.warn('URL config parse error:', err);
+        }
+      }
+
+      // 3. ดูจาก LocalStorage เดิม
+      const saved = localStorage.getItem(STORAGE_KEY_PREFIX + 'firebase_config');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    function copyShareableCloudLink() {
+      const savedConfigStr = localStorage.getItem(STORAGE_KEY_PREFIX + 'firebase_config');
+      if (!savedConfigStr) {
+        showToast('ยังไม่ได้เชื่อมต่อคลาวด์', 'warning');
+        return;
+      }
+      try {
+        const b64 = btoa(encodeURIComponent(savedConfigStr));
+        const fullUrl = window.location.origin + window.location.pathname + '#config=' + b64;
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(fullUrl).then(() => {
+            showToast('✓ คัดลอกลิงก์สำเร็จ! ส่งทาง LINE ให้เพื่อนเปิดใช้ได้ทันที', 'success');
+          }).catch(() => {
+            fallbackCopy(fullUrl);
+          });
+        } else {
+          fallbackCopy(fullUrl);
+        }
+      } catch (err) {
+        showToast('ไม่สามารถสร้างลิงก์ได้: ' + err.message, 'error');
+      }
+    }
+
+    function fallbackCopy(textToCopy) {
+      const tempIn = document.createElement('textarea');
+      tempIn.value = textToCopy;
+      document.body.appendChild(tempIn);
+      tempIn.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempIn);
+      showToast('✓ คัดลอกลิงก์สำเร็จ! ส่งทาง LINE ให้เพื่อนเปิดใช้ได้ทันที', 'success');
+    }
+
+    function downloadPreconfiguredHTML() {
+      const savedConfigStr = localStorage.getItem(STORAGE_KEY_PREFIX + 'firebase_config');
+      if (!savedConfigStr) {
+        showToast('ยังไม่ได้เชื่อมต่อคลาวด์ กรุณาใส่ Config ก่อนดาวน์โหลด', 'warning');
+        return;
+      }
+      try {
+        const cfg = JSON.parse(savedConfigStr);
+        let currentHtml = document.documentElement.outerHTML;
+        // แทนที่ EMBEDDED_FIREBASE_CONFIG ด้วย Config ปัจจุบัน
+        currentHtml = currentHtml.replace(
+          'const EMBEDDED_FIREBASE_CONFIG = null;',
+          'const EMBEDDED_FIREBASE_CONFIG = ' + JSON.stringify(cfg, null, 2) + ';'
+        );
+        const fullContent = '<!DOCTYPE html>\n' + currentHtml;
+        downloadFile(fullContent, 'PangPoLoh_Health_Ready.html', 'text/html;charset=utf-8;');
+        showToast('✓ โหลดไฟล์สำเร็จรูปเรียบร้อย! ส่งไฟล์นี้ให้เครื่องอื่นเปิดใช้ได้ทันที', 'success');
+      } catch (err) {
+        showToast('ดาวน์โหลดไม่สำเร็จ: ' + err.message, 'error');
+      }
+    }
+
+    let firebaseDb = null;
+    let isCloudConnected = false;
+    let unsubDrugs = null;
+    let unsubPatients = null;
+    let unsubVisits = null;
+
+    function openCloudSyncModal() {
+      const savedConfig = localStorage.getItem(STORAGE_KEY_PREFIX + 'firebase_config') || '';
+      document.getElementById('firebase-config-input').value = savedConfig;
+      updateCloudModalUI();
+      document.getElementById('modal-cloud-sync').classList.remove('hidden');
+    }
+
+    function closeCloudSyncModal() {
+      document.getElementById('modal-cloud-sync').classList.add('hidden');
+    }
+
+    function updateCloudUI(connected, projectId = '') {
+      const btnDot = document.getElementById('cloud-status-dot');
+      const btnText = document.getElementById('cloud-status-text');
+      if (btnDot && btnText) {
+        if (connected) {
+          btnDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+          btnText.innerText = 'คลาวด์ซิงก์เรียลไทม์';
+          btnText.title = 'เชื่อมต่อคลาวด์แล้ว (' + projectId + ') ข้อมูลซิงก์เรียลไทม์ทุกเครื่อง';
+        } else {
+          btnDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
+          btnText.innerText = 'ออฟไลน์ (ในเครื่อง)';
+          btnText.title = 'ทำงานเฉพาะในเครื่องนี้ แตะเพื่อเชื่อมต่อคลาวด์ซิงก์ข้ามเครื่อง';
+        }
+      }
+      updateCloudModalUI();
+    }
+
+    function updateCloudModalUI() {
+      const dot = document.getElementById('cloud-modal-status-dot');
+      const title = document.getElementById('cloud-modal-status-title');
+      const desc = document.getElementById('cloud-modal-status-desc');
+      const btnDisconnect = document.getElementById('btn-cloud-disconnect');
+      const btnSyncNow = document.getElementById('btn-sync-now');
+
+      if (!dot || !title || !desc) return;
+
+      if (isCloudConnected && firebaseDb) {
+        const savedConfigStr = localStorage.getItem(STORAGE_KEY_PREFIX + 'firebase_config') || '{}';
+        let pId = 'เชื่อมต่อแล้ว';
+        try {
+          const cfg = JSON.parse(savedConfigStr);
+          pId = cfg.projectId || pId;
+        } catch (e) {}
+
+        dot.className = 'w-3.5 h-3.5 rounded-full bg-emerald-500 flex-shrink-0 animate-pulse';
+        title.innerHTML = '<span class="text-emerald-800 font-bold">✓ เชื่อมต่อคลาวด์สำเร็จ (Real-time Sync Active)</span>';
+        desc.innerText = `โครงการ: ${pId} | ตัดสต็อกและซิงก์คนไข้ทันทีข้ามทุกเครื่อง`;
+        if (btnDisconnect) btnDisconnect.classList.remove('hidden');
+        if (btnSyncNow) btnSyncNow.classList.remove('hidden');
+
+        const shareSec = document.getElementById('cloud-share-section');
+        if (shareSec) shareSec.classList.remove('hidden');
+
+        const qrBox = document.getElementById('cloud-qr-box');
+        const qrImg = document.getElementById('cloud-qr-img');
+        if (qrBox && qrImg && savedConfigStr !== '{}') {
+          try {
+            const b64 = btoa(encodeURIComponent(savedConfigStr));
+            const shareUrl = window.location.origin + window.location.pathname + '#config=' + b64;
+            qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(shareUrl);
+            qrBox.classList.remove('hidden');
+          } catch (e) {}
+        }
+      } else {
+        dot.className = 'w-3.5 h-3.5 rounded-full bg-slate-400 flex-shrink-0';
+        title.innerText = 'สถานะ: ใช้งานเฉพาะในเครื่องนี้ (Offline)';
+        desc.innerText = 'ข้อมูลจัดเก็บในเครื่อง ยังไม่ได้ซิงก์ข้ามเครื่อง';
+        if (btnDisconnect) btnDisconnect.classList.add('hidden');
+        if (btnSyncNow) btnSyncNow.classList.add('hidden');
+        const shareSec = document.getElementById('cloud-share-section');
+        if (shareSec) shareSec.classList.add('hidden');
+      }
+    }
+
+    function parseFirebaseConfig(raw) {
+      if (!raw || typeof raw !== 'string') return null;
+      raw = raw.trim();
+      // If starts with var/const firebaseConfig = { ... }
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (!match) return null;
+      let jsonStr = match[0];
+      // Convert unquoted JS keys to valid JSON keys
+      jsonStr = jsonStr.replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":');
+      // Remove trailing commas
+      jsonStr = jsonStr.replace(/,\s*\}/g, '}');
+      try {
+        return JSON.parse(jsonStr);
+      } catch (e) {
+        try {
+          return new Function('return ' + match[0])();
+        } catch (err2) {
+          return null;
+        }
+      }
+    }
+
+    function saveAndConnectCloud() {
+      const rawInput = document.getElementById('firebase-config-input').value.trim();
+      if (!rawInput) {
+        showToast('กรุณาวางโค้ด Firebase Config ก่อนกดเชื่อมต่อ', 'warning');
+        return;
+      }
+      const configObj = parseFirebaseConfig(rawInput);
+      if (!configObj || !configObj.projectId) {
+        showToast('รูปแบบ Firebase Config ไม่ถูกต้อง กรุณาคัดลอก { apiKey: "...", projectId: "..." } มาวาง', 'error');
+        return;
+      }
+
+      localStorage.setItem(STORAGE_KEY_PREFIX + 'firebase_config', JSON.stringify(configObj));
+      initFirebaseConnection(configObj, true);
+    }
+
+    function disconnectCloud() {
+      showConfirmModal('ต้องการตัดการเชื่อมต่อคลาวด์และกลับมาใช้ข้อมูลเฉพาะในเครื่องนี้ใช่หรือไม่?', () => {
+        if (unsubDrugs) unsubDrugs();
+        if (unsubPatients) unsubPatients();
+        if (unsubVisits) unsubVisits();
+        isCloudConnected = false;
+        firebaseDb = null;
+        localStorage.removeItem(STORAGE_KEY_PREFIX + 'firebase_config');
+        document.getElementById('firebase-config-input').value = '';
+        updateCloudUI(false);
+        showToast('ตัดการเชื่อมต่อคลาวด์เรียบร้อย กลับสู่โหมดออฟไลน์', 'info');
+      });
+    }
+
+    function initFirebaseConnection(config, isManual = false) {
+      if (typeof firebase === 'undefined') {
+        if (isManual) showToast('ไม่พบ Firebase SDK โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
+        return;
+      }
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config);
+        }
+        firebaseDb = firebase.firestore();
+        
+        // Hilltribe offline persistence
+        try {
+          firebaseDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+        } catch (e) {}
+
+        isCloudConnected = true;
+        updateCloudUI(true, config.projectId);
+        startRealtimeCloudListeners();
+        if (isManual) {
+          closeCloudSyncModal();
+          showToast(`✓ เชื่อมต่อคลาวด์สำเร็จ (${config.projectId}) ซิงก์ข้อมูลเรียลไทม์ทุกเครื่องแล้ว!`, 'success');
+        }
+      } catch (err) {
+        console.error('Firebase connect error:', err);
+        isCloudConnected = false;
+        updateCloudUI(false, err.message);
+        if (isManual) showToast(`เชื่อมต่อไม่สำเร็จ: ${err.message}`, 'error');
+      }
+    }
+
+    function startRealtimeCloudListeners() {
+      if (!firebaseDb) return;
+
+      // 1. ซิงก์ยาและตัดสต็อกเรียลไทม์ (เมื่อเครื่องอื่นตัดสต็อก เครื่องนี้จะลดทันที)
+      if (unsubDrugs) unsubDrugs();
+      unsubDrugs = firebaseDb.collection('drugs').onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          // Cloud empty -> seed
+          uploadDrugsToCloud();
+          return;
+        }
+        const cloudDrugs = [];
+        snapshot.forEach(doc => {
+          cloudDrugs.push(doc.data());
+        });
+        if (cloudDrugs.length > 0) {
+          cloudDrugs.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+          inventory = cloudDrugs;
+          saveStorage('drugs', inventory);
+          renderInventoryTable();
+          renderDrugDropdown();
+          checkLowStockAlert();
+        }
+      }, err => {
+        console.warn('Realtime drugs sync notice:', err);
+      });
+
+      // 2. ซิงก์ข้อมูลคนไข้เรียลไทม์
+      if (unsubPatients) unsubPatients();
+      unsubPatients = firebaseDb.collection('patients').onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          uploadPatientsToCloud();
+          return;
+        }
+        const cloudPatients = [];
+        snapshot.forEach(doc => {
+          cloudPatients.push(doc.data());
+        });
+        if (cloudPatients.length > 0) {
+          patients = cloudPatients;
+          saveStorage('patients', patients);
+          renderPatientsTable();
+          updateHouseDatalist();
+          const houseNoVal = document.getElementById('quick-house-no')?.value;
+          if (houseNoVal) {
+            renderFamilyMembers(houseNoVal);
+          }
+        }
+      }, err => {
+        console.warn('Realtime patients sync notice:', err);
+      });
+
+      // 3. ซิงก์ประวัติการตรวจเรียลไทม์
+      if (unsubVisits) unsubVisits();
+      unsubVisits = firebaseDb.collection('visits').orderBy('date', 'desc').limit(150).onSnapshot(snapshot => {
+        const cloudVisits = [];
+        snapshot.forEach(doc => {
+          cloudVisits.push(doc.data());
+        });
+        if (cloudVisits.length > 0) {
+          visits = cloudVisits;
+          saveStorage('visits', visits);
+          renderHistoryTable();
+        }
+      }, err => {
+        console.warn('Realtime visits sync notice:', err);
+      });
+    }
+
+    function uploadDrugsToCloud() {
+      if (!firebaseDb) return;
+      inventory.forEach(d => {
+        firebaseDb.collection('drugs').doc(d.id).set(d, { merge: true }).catch(() => {});
+      });
+    }
+
+    function uploadPatientsToCloud() {
+      if (!firebaseDb) return;
+      patients.forEach(p => {
+        if (p.pid) {
+          firebaseDb.collection('patients').doc(p.pid).set(p, { merge: true }).catch(() => {});
+        }
+      });
+    }
+
+    function uploadLocalDataToCloud() {
+      if (!firebaseDb) {
+        showToast('ยังไม่ได้เชื่อมต่อคลาวด์', 'warning');
+        return;
+      }
+      showConfirmModal('ต้องการอัปโหลดข้อมูลคนไข้และสต็อกยาในเครื่องนี้ขึ้นสู่ฐานข้อมูลคลาวด์ใช่หรือไม่?', () => {
+        uploadDrugsToCloud();
+        uploadPatientsToCloud();
+        visits.forEach(v => {
+          if (v.id) {
+            firebaseDb.collection('visits').doc(v.id).set(v, { merge: true }).catch(() => {});
+          }
+        });
+        showToast('อัปโหลดข้อมูลขึ้นสู่คลาวด์เรียบร้อย', 'success');
+      });
+    }
+
   </script>
+
+
+  <!-- Modal 8: ตั้งค่าเชื่อมต่อระบบคลาวด์ซิงก์ข้อมูลข้ามเครื่อง (Firebase Real-Time Cloud Sync) -->
+  <div id="modal-cloud-sync" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[92vh]">
+      <div class="flex justify-between items-center mb-4 border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center text-base">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">เชื่อมต่อฐานข้อมูลคลาวด์ (Cloud Real-Time Sync)</h3>
+            <p class="text-[11px] text-slate-500">ซิงก์คนไข้ ตัดสต็อกยาเรียลไทม์ข้ามเครื่อง (มือถือ / iPad / คอมฯ)</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCloudSyncModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-4 text-xs overflow-y-auto pr-1">
+        <!-- Status Box -->
+        <div id="cloud-modal-status-box" class="p-3 rounded-xl border bg-slate-50 border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span id="cloud-modal-status-dot" class="w-3.5 h-3.5 rounded-full bg-slate-400 flex-shrink-0"></span>
+            <div>
+              <strong id="cloud-modal-status-title" class="text-slate-800 block text-xs">สถานะ: ใช้งานเฉพาะในเครื่องนี้ (Offline)</strong>
+              <span id="cloud-modal-status-desc" class="text-[10px] text-slate-500">ข้อมูลจัดเก็บในเครื่อง ยังไม่ได้ซิงก์ข้ามเครื่อง</span>
+            </div>
+          </div>
+          <button type="button" id="btn-cloud-disconnect" onclick="disconnectCloud()" class="hidden px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-medium transition">
+            ตัดการเชื่อมต่อ
+          </button>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">วาง Firebase Config (สำหรับซิงก์ทุกเครื่องเข้าด้วยกัน)</label>
+          <textarea id="firebase-config-input" rows="4" placeholder='วางโค้ด firebaseConfig เช่น:
+{
+  apiKey: "AIzaSy...",
+  authDomain: "pangpoloh.firebaseapp.com",
+  projectId: "pangpoloh-health",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "..."
+}' class="w-full px-3 py-2 border border-slate-300 rounded-xl text-[11px] font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50"></textarea>
+          <p class="text-[10px] text-slate-400 mt-1">นำค่า firebaseConfig เดียวกันนี้ไปใส่ในมือถือ/iPad ทุกเครื่อง ข้อมูลจะเชื่อมโยงกันทันที</p>
+        </div>
+
+
+        <!-- กล่องสำหรับแชร์ให้เครื่องอื่นเปิดใช้ได้ทันที (จบที่เครื่องเดียว) -->
+        <div id="cloud-share-section" class="hidden p-4 bg-gradient-to-r from-indigo-50 to-emerald-50 border-2 border-indigo-200 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between">
+            <strong class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+              <i class="fa-solid fa-qrcode text-indigo-600 text-sm"></i>
+              ส่งต่อให้เครื่องอื่นเปิดใช้ทันที (ไม่ต้องตั้งค่าซ้ำ)
+            </strong>
+            <span class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-bold">จบที่เครื่องนี้</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            เลือกวิธีส่งต่อให้มือถือหรือ iPad เครื่องอื่นใช้งานได้ทันทีโดยไม่ต้องไปสมัครหรือคัดลอกโค้ดซ้ำ:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="copyShareableCloudLink()" class="px-3 py-2 bg-white hover:bg-indigo-50 text-indigo-800 border border-indigo-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition">
+              <i class="fa-solid fa-link text-indigo-600"></i> คัดลอกลิงก์ส่งทาง LINE
+            </button>
+            <button type="button" onclick="downloadPreconfiguredHTML()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition">
+              <i class="fa-solid fa-file-arrow-down"></i> โหลดไฟล์พร้อมใช้ส่งต่อ
+            </button>
+          </div>
+          <div id="cloud-qr-box" class="pt-2 text-center border-t border-indigo-200/60 hidden">
+            <p class="text-[11px] text-slate-600 mb-2 font-medium">หรือเปิดกล้องมือถือ/iPad สแกน QR Code นี้เพื่อเข้าใช้งานทันที:</p>
+            <img id="cloud-qr-img" src="" alt="QR Code" class="mx-auto w-36 h-36 border-2 border-white rounded-2xl shadow-md bg-white p-1">
+          </div>
+        </div>
+
+        <!-- 3-Step Guide -->
+        <div class="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2 text-[11px] text-emerald-950">
+          <strong class="font-bold flex items-center gap-1.5 text-emerald-900 text-xs">
+            <i class="fa-solid fa-circle-question text-emerald-600"></i> วิธีสร้าง Firebase ฟรี (ทำครั้งเดียวใช้ได้ตลอดไป):
+          </strong>
+          <ol class="list-decimal list-inside space-y-1.5 text-slate-700 pl-1 leading-relaxed">
+            <li>เปิดเว็บ <strong><a href="https://console.firebase.google.com" target="_blank" class="text-emerald-700 underline font-semibold">console.firebase.google.com</a></strong> ล็อกอินด้วย Gmail แล้วกด <strong>Add project</strong> (ตั้งชื่อ เช่น pangpoloh-health)</li>
+            <li>ไปที่เมนูด้านซ้าย <strong>Build &gt; Firestore Database</strong> กด <strong>Create database</strong> เลือกโหมด <strong>Start in test mode</strong> แล้วกด Enable</li>
+            <li>ไปที่ไอคอนฟันเฟือง <strong>Project settings &gt; General</strong> เลื่อนลงล่างสุดที่หัวข้อ "Your apps" กดรูปเว็บ <strong>&lt;/&gt;</strong> ตั้งชื่อเล่นแอป แล้วคัดลอกข้อความใน <code>firebaseConfig = { ... }</code> มาวางในช่องด้านบนนี้แล้วกด "บันทึกและเชื่อมต่อ"</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-4 mt-3 border-t">
+        <button type="button" onclick="uploadLocalDataToCloud()" id="btn-sync-now" class="hidden px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-arrows-rotate"></i> อัปโหลดข้อมูลเริ่มต้นขึ้นคลาวด์
+        </button>
+        <div class="flex gap-2 ml-auto">
+          <button type="button" onclick="closeCloudSyncModal()" class="px-4 py-2 border rounded-xl text-slate-600 text-xs hover:bg-slate-50">ปิด</button>
+          <button type="button" onclick="saveAndConnectCloud()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plug-circle-check"></i> บันทึกและเชื่อมต่อ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Confirm Modal -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[9999]">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+      <div class="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-circle-question" id="confirm-modal-icon"></i>
+      </div>
+      <h3 class="text-sm font-bold text-slate-800" id="confirm-modal-title">ยืนยันการดำเนินการ</h3>
+      <p class="text-xs text-slate-600 leading-relaxed" id="confirm-modal-message"></p>
+      <div class="flex justify-center gap-3 pt-2">
+        <button type="button" id="confirm-modal-btn-cancel" class="px-4 py-2 border border-slate-300 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-medium transition">ยกเลิก</button>
+        <button type="button" id="confirm-modal-btn-ok" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium shadow transition">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
