@@ -535,7 +535,7 @@
                   <th class="p-3 text-center">คงเหลือ</th>
                   <th class="p-3 text-center">จุดเตือนขั้นต่ำ</th>
                   <th class="p-3 text-center">สถานะ</th>
-                  <th class="p-3 text-center admin-only hidden">จัดการ</th>
+                  <th class="p-3 text-center">จัดการ</th>
                 </tr>
               </thead>
               <tbody id="inventory-table-body" class="divide-y divide-slate-200">
@@ -3475,7 +3475,7 @@
         const isLow = d.stock > 0 && d.stock <= minLimit;
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50';
+        tr.className = 'hover:bg-slate-50 transition';
         tr.innerHTML = `
           <td class="p-3 font-mono text-slate-500">${d.id}</td>
           <td class="p-3 font-semibold text-slate-800">
@@ -3488,19 +3488,96 @@
           </td>
           <td class="p-3 text-slate-600 max-w-xs truncate" title="${d.indication || '-'}">${d.indication || '-'}</td>
           <td class="p-3 text-rose-700 max-w-xs truncate font-medium" title="${d.warning || '-'}">${d.warning || '-'}</td>
-          <td class="p-3 text-center font-bold ${isOut ? 'text-rose-600' : isLow ? 'text-amber-600' : 'text-slate-800'}">${d.stock} ${d.unit}</td>
+          <td class="p-3 text-center">
+            <button type="button" onclick="openQuickStockModal('${d.id}')" class="px-2.5 py-1.5 rounded-xl font-bold font-mono text-xs ${isOut ? 'bg-rose-100 text-rose-700 hover:bg-rose-200' : isLow ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' : 'bg-slate-100 text-slate-800 hover:bg-slate-200'} transition flex items-center justify-center gap-1.5 mx-auto shadow-sm border border-slate-200" title="แตะเพื่อแก้ไขจำนวนคงเหลือทันที">
+              <span>${d.stock}</span>
+              <span class="text-[10px] text-slate-500 font-normal">${d.unit}</span>
+              <i class="fa-solid fa-pen-to-square text-[10px] text-emerald-600"></i>
+            </button>
+          </td>
           <td class="p-3 text-center text-slate-500 font-mono">${minLimit} ${d.unit}</td>
           <td class="p-3 text-center">
             ${isOut ? '<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[11px] font-bold">หมด</span>' : isLow ? '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[11px] font-bold">ใกล้หมด</span>' : '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[11px]">ปกติ</span>'}
           </td>
-          <td class="p-3 text-center admin-only hidden space-x-1 whitespace-nowrap">
-            <button onclick="openEditDrugModal('${d.id}')" class="px-2 py-1 text-slate-600 hover:bg-slate-100 rounded" title="แก้ไข"><i class="fa-solid fa-pen"></i></button>
-            <button onclick="deleteDrug('${d.id}')" class="px-2 py-1 text-rose-600 hover:bg-rose-50 rounded" title="ลบ"><i class="fa-solid fa-trash"></i></button>
+          <td class="p-3 text-center space-x-1 whitespace-nowrap">
+            <button type="button" onclick="openQuickStockModal('${d.id}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold transition" title="ปรับจำนวนคงเหลือ">
+              <i class="fa-solid fa-pen-to-square"></i> ปรับยอด
+            </button>
+            <button type="button" onclick="openEditDrugModal('${d.id}')" class="px-2 py-1 text-slate-600 hover:bg-slate-100 rounded-lg text-xs transition" title="แก้ไขข้อมูลยาทั้งหมด">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+            <button type="button" onclick="deleteDrug('${d.id}')" class="admin-only hidden px-2 py-1 text-rose-600 hover:bg-rose-50 rounded-lg text-xs transition" title="ลบยา">
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
+
+
+    // ================= ปรับปรุงยอดสต็อกยา (QUICK STOCK UPDATE) =================
+    window.openQuickStockModal = function(drugId) {
+      const drug = inventory.find(d => d.id === drugId);
+      if (!drug) return;
+      document.getElementById('quick-stock-drug-id').value = drug.id;
+      document.getElementById('quick-stock-drug-name').innerText = drug.name;
+      document.getElementById('quick-stock-current-display').innerText = `${drug.stock} ${drug.unit}`;
+      document.getElementById('quick-stock-input').value = drug.stock;
+      document.getElementById('quick-stock-unit-label').innerText = drug.unit;
+      document.getElementById('modal-quick-stock').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('quick-stock-input').focus();
+        document.getElementById('quick-stock-input').select();
+      }, 100);
+    };
+
+    window.closeQuickStockModal = function() {
+      document.getElementById('modal-quick-stock').classList.add('hidden');
+    };
+
+    window.adjustQuickStockValue = function(delta) {
+      const input = document.getElementById('quick-stock-input');
+      let val = parseInt(input.value, 10) || 0;
+      val = Math.max(0, val + delta);
+      input.value = val;
+    };
+
+    window.setQuickStockExact = function(exactVal) {
+      document.getElementById('quick-stock-input').value = exactVal;
+    };
+
+    window.saveQuickStock = function() {
+      const drugId = document.getElementById('quick-stock-drug-id').value;
+      const newStockVal = parseInt(document.getElementById('quick-stock-input').value, 10);
+      
+      if (isNaN(newStockVal) || newStockVal < 0) {
+        showToast('กรุณาระบุจำนวนสต็อกที่ถูกต้อง (ตัวเลขตั้งแต่ 0 ขึ้นไป)', 'warning');
+        return;
+      }
+
+      const drug = inventory.find(d => d.id === drugId);
+      if (!drug) return;
+
+      const oldStock = drug.stock;
+      drug.stock = newStockVal;
+      saveStorage('drugs', inventory);
+
+      // ซิงก์ขึ้น Firebase แบบ Real-time ทันทีถ้าเชื่อมต่ออยู่
+      if (isCloudConnected && firebaseDb) {
+        try {
+          firebaseDb.collection('drugs').doc(drug.id).set(drug, { merge: true });
+        } catch (e) {
+          console.warn('Stock cloud sync notice:', e);
+        }
+      }
+
+      renderInventoryTable();
+      renderDrugDropdown();
+      checkLowStockAlert();
+      closeQuickStockModal();
+      showToast(`✓ อัปเดตสต็อก ${drug.name}: ${oldStock} ➔ ${newStockVal} ${drug.unit} เรียบร้อย`, 'success');
+    };
 
     window.openAddDrugModal = function() {
       document.getElementById('form-drug').reset();
@@ -4408,6 +4485,61 @@
             <i class="fa-solid fa-plug-circle-check"></i> บันทึกและเชื่อมต่อ
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: ปรับปรุงยอดสต็อกยาด่วน -->
+  <div id="modal-quick-stock" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">ปรับปรุงจำนวนคงเหลือ</h3>
+            <p id="quick-stock-drug-name" class="text-xs text-emerald-800 font-semibold truncate max-w-[200px]"></p>
+          </div>
+        </div>
+        <button type="button" onclick="closeQuickStockModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <input type="hidden" id="quick-stock-drug-id">
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">จำนวนคงเหลือปัจจุบัน:</label>
+        <div class="p-2.5 bg-slate-50 border rounded-xl flex items-center justify-between text-xs">
+          <span class="text-slate-500">ยอดเดิมในระบบ:</span>
+          <strong id="quick-stock-current-display" class="font-mono text-sm text-slate-800 font-bold">-</strong>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">ระบุจำนวนคงเหลือใหม่ที่ต้องการแก้ไข:</label>
+        <div class="relative">
+          <input type="number" id="quick-stock-input" min="0" required class="w-full pl-3 pr-16 py-2.5 border-2 border-emerald-400 bg-emerald-50/40 rounded-xl font-mono text-base font-bold text-slate-800 text-center focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <span id="quick-stock-unit-label" class="absolute right-3 top-3 text-xs text-slate-500 font-medium">หน่วย</span>
+        </div>
+      </div>
+
+      <!-- ปุ่มลัดปรับยอด (+10, +50, +100, -10, ตั้งเป็น 0) -->
+      <div>
+        <span class="block text-[11px] text-slate-500 mb-1.5 font-medium">ปุ่มลัดปรับยอดด่วน:</span>
+        <div class="flex flex-wrap gap-1.5 text-xs font-semibold">
+          <button type="button" onclick="adjustQuickStockValue(10)" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 rounded-lg border border-slate-200 transition">+10</button>
+          <button type="button" onclick="adjustQuickStockValue(50)" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 rounded-lg border border-slate-200 transition">+50</button>
+          <button type="button" onclick="adjustQuickStockValue(100)" class="px-2.5 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 rounded-lg border border-slate-200 transition">+100</button>
+          <button type="button" onclick="adjustQuickStockValue(-10)" class="px-2.5 py-1 bg-slate-100 hover:bg-rose-100 hover:text-rose-800 rounded-lg border border-slate-200 transition">-10</button>
+          <button type="button" onclick="setQuickStockExact(0)" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 transition">หมด (0)</button>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button type="button" onclick="closeQuickStockModal()" class="px-4 py-2 border rounded-xl text-slate-600 text-xs hover:bg-slate-50">ยกเลิก</button>
+        <button type="button" onclick="saveQuickStock()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-check"></i> บันทึกยอดสต็อก
+        </button>
       </div>
     </div>
   </div>
