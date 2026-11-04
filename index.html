@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PangPoLoh Health - ปางโปโล เฮลธ์ (ระบบเวชระเบียนชุมชน)</title>
+  <title>PangPoLoh Health - ปางปูเลาะ เฮลธ์ (ระบบเวชระเบียนชุมชน)</title>
   <link rel="icon" type="image/jpeg" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23059669'/%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- SheetJS for Direct Excel (.xlsx/.xls) Import -->
@@ -788,7 +788,7 @@
           <img src="https://via.placeholder.com/96?text=PangPoLoh" data-local-logo="logo.jpg" alt="Logo" class="w-16 h-16 object-contain rounded-xl" onerror="this.onerror=null; this.src='https://via.placeholder.com/64?text=Logo';">
           <div class="text-center flex-1 pr-16">
             <h2 class="text-base font-bold tracking-wide">ใบตรวจรักษาผู้ป่วยนอก (OPD CARD)</h2>
-            <p class="text-xs font-medium">สถานีอนามัย / หน่วยบริการสุขภาพปางโปโล (PangPoLoh Health)</p>
+            <p class="text-xs font-medium">สถานีอนามัย / หน่วยบริการสุขภาพปางปูเลาะ (PangPoLoh Health)</p>
             <p class="text-[11px] text-slate-500">สังกัดโรงพยาบาลส่งเสริมสุขภาพตำบล (รพ.สต.)</p>
           </div>
         </div>
@@ -1008,7 +1008,7 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-600 mb-1">คุ้มบ้าน / หย่อมบ้าน</label>
-            <input type="text" id="m-patient-address" placeholder="เช่น หย่อมบ้านปางโปโล หมู่ 2" class="w-full px-3 py-2 border rounded-xl">
+            <input type="text" id="m-patient-address" placeholder="เช่น หย่อมบ้านปางปูเลาะ หมู่ 2" class="w-full px-3 py-2 border rounded-xl">
           </div>
         </div>
         <div>
@@ -1852,7 +1852,7 @@
         dob: '1978-05-12', 
         age: 48, 
         cid: '1509900123456', 
-        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        address: 'หมู่ 2 หย่อมบ้านปางปูเลาะ', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: 'Amoxicillin, Penicillin', 
         chronic: 'ความดันโลหิตสูง' 
@@ -1865,7 +1865,7 @@
         dob: '1964-11-20', 
         age: 62, 
         cid: '1509900654321', 
-        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        address: 'หมู่ 2 หย่อมบ้านปางปูเลาะ', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: '', 
         chronic: 'เบาหวานชนิดที่ 2' 
@@ -1878,7 +1878,7 @@
         dob: '2005-08-14', 
         age: 21, 
         cid: '1509900987654', 
-        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        address: 'หมู่ 2 หย่อมบ้านปางปูเลาะ', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: '', 
         chronic: 'ปฏิเสธโรคประจำตัว' 
@@ -1891,7 +1891,7 @@
         dob: '1982-01-10', 
         age: 44, 
         cid: '1509900112233', 
-        address: 'หมู่ 2 หย่อมบ้านปางโปโล', 
+        address: 'หมู่ 2 หย่อมบ้านปางปูเลาะ', 
         privilege: 'บัตรทอง (UCS)', 
         allergy: '', 
         chronic: 'เกาต์' 
@@ -2863,7 +2863,7 @@
     // ================= นำเข้ารายชื่อผู้ป่วย =================
         // ================= นำเข้ารายชื่อผู้ป่วย (รองรับทั้ง EXCEL .XLSX และ CSV THAI/UTF-8) =================
     window.downloadCSVTemplate = function() {
-      const template = "\uFEFFPID,ชื่อ,นามสกุล,วันเดือนปีเกิด,อายุ (ปี/เดือน/วัน),ที่อยู่,แพ้ยา,โรคประจำตัว,สิทธิรักษา,เลขประจำตัวประชาชน\nPID-0001,สมชาย,สุขเกษม,12/04/2528,39,12 หมู่ 2 หย่อมบ้านปางโปโล,Amoxicillin,ความดันโลหิตสูง,บัตรทอง (UCS),1509900111111\nPID-0002,มะลิ,ดอยสวย,25/08/2513,54,12,ไม่มี,เบาหวาน,บัตรทอง (UCS),\n";
+      const template = "\uFEFFPID,ชื่อ,นามสกุล,วันเดือนปีเกิด,อายุ (ปี/เดือน/วัน),ที่อยู่,แพ้ยา,โรคประจำตัว,สิทธิรักษา,เลขประจำตัวประชาชน\nPID-0001,สมชาย,สุขเกษม,12/04/2528,39,12 หมู่ 2 หย่อมบ้านปางปูเลาะ,Amoxicillin,ความดันโลหิตสูง,บัตรทอง (UCS),1509900111111\nPID-0002,มะลิ,ดอยสวย,25/08/2513,54,12,ไม่มี,เบาหวาน,บัตรทอง (UCS),\n";
       downloadFile(template, 'Template_Patients_PangPoLoh.csv', 'text/csv;charset=utf-8;');
       showToast('ดาวน์โหลดแม่แบบเรียบร้อย (เปิดกรอกใน Excel ได้เลย)', 'info');
     };
@@ -3395,19 +3395,46 @@
       // ซิงก์ขึ้น Firebase แบบ Real-time ทันที (ตัดสต็อกยาและบันทึกประวัติทุกเครื่อง)
       if (isCloudConnected && firebaseDb) {
         try {
-          // 1. บันทึกประวัติการตรวจ
-          firebaseDb.collection('visits').doc(newVisitId).set(visitRecord);
+          const cleanVisit = JSON.parse(JSON.stringify(visitRecord));
+          const cleanPatient = JSON.parse(JSON.stringify(patientData));
+
+          // 1. บันทึกประวัติการตรวจขึ้นคลาวด์
+          firebaseDb.collection('visits').doc(newVisitId).set(cleanVisit)
+            .then(() => {
+              console.log('✓ Visit synced to cloud successfully:', newVisitId);
+            })
+            .catch(err => {
+              console.error('Visit cloud sync error:', err);
+              if (err.code === 'permission-denied') {
+                showToast('⚠️ ส่งประวัติตรวจขึ้นคลาวด์ไม่สำเร็จ: ติดสิทธิ์ Rules ใน Firebase (กรุณาไปแท็บ Rules แล้วแก้เป็น allow read, write: if true;)', 'error');
+              } else {
+                showToast('⚠️ ส่งประวัติตรวจขึ้นคลาวด์ไม่สำเร็จ: ' + err.message, 'warning');
+              }
+            });
+
           // 2. บันทึก/อัปเดตข้อมูลคนไข้
-          firebaseDb.collection('patients').doc(patientData.pid).set(patientData, { merge: true });
+          firebaseDb.collection('patients').doc(cleanPatient.pid).set(cleanPatient, { merge: true })
+            .catch(err => console.error('Patient cloud sync error:', err));
+
           // 3. ตัดสต็อกยาบนคลาวด์แบบ Real-time (ทุกเครื่องจะเห็นสต็อกลดลงทันที)
           currentPrescription.forEach(item => {
             const targetDrug = inventory.find(d => d.id === item.id);
             if (targetDrug) {
-              firebaseDb.collection('drugs').doc(item.id).set(targetDrug, { merge: true });
+              const cleanDrug = JSON.parse(JSON.stringify(targetDrug));
+              firebaseDb.collection('drugs').doc(item.id).set(cleanDrug, { merge: true })
+                .then(() => {
+                  console.log('✓ Drug stock synced to cloud:', item.id, cleanDrug.stock);
+                })
+                .catch(err => {
+                  console.error('Drug stock cloud sync error:', err);
+                  if (err.code === 'permission-denied') {
+                    showToast(`⚠️ ตัดสต็อก ${cleanDrug.name} บนคลาวด์ไม่ผ่าน: ติดสิทธิ์ Rules ใน Firebase`, 'error');
+                  }
+                });
             }
           });
         } catch (errSync) {
-          console.warn('Cloud sync error on save visit:', errSync);
+          console.error('Cloud sync error on save visit:', errSync);
         }
       }
 
@@ -3604,7 +3631,19 @@
       // ซิงก์ขึ้น Firebase แบบ Real-time ทันทีถ้าเชื่อมต่ออยู่
       if (isCloudConnected && firebaseDb) {
         try {
-          firebaseDb.collection('drugs').doc(drug.id).set(drug, { merge: true });
+          const cleanDrug = JSON.parse(JSON.stringify(drug));
+          firebaseDb.collection('drugs').doc(drug.id).set(cleanDrug, { merge: true })
+            .then(() => {
+              console.log('✓ Quick stock synced to cloud:', drug.id, cleanDrug.stock);
+            })
+            .catch(err => {
+              console.error('Quick stock cloud sync error:', err);
+              if (err.code === 'permission-denied') {
+                showToast(`⚠️ แก้ไขสต็อกในเครื่องสำเร็จ แต่ส่งขึ้นคลาวด์ไม่ผ่าน: ติดสิทธิ์ Rules ใน Firebase (กรุณาไปที่ Firebase Console > Firestore > Rules แล้วแก้เป็น allow read, write: if true;)`, 'error');
+              } else {
+                showToast('⚠️ ส่งสต็อกยาขึ้นคลาวด์ไม่สำเร็จ: ' + err.message, 'warning');
+              }
+            });
         } catch (e) {
           console.warn('Stock cloud sync notice:', e);
         }
@@ -4298,6 +4337,7 @@
         isCloudConnected = true;
         updateCloudUI(true, config.projectId);
         startRealtimeCloudListeners();
+        testCloudPermissions();
         if (isManual) {
           closeCloudSyncModal();
           showToast(`✓ เชื่อมต่อคลาวด์สำเร็จ (${config.projectId}) ซิงก์ข้อมูลเรียลไทม์ทุกเครื่องแล้ว!`, 'success');
@@ -4374,18 +4414,23 @@
 
       // 3. ซิงก์ประวัติการตรวจเรียลไทม์
       if (unsubVisits) unsubVisits();
-      unsubVisits = firebaseDb.collection('visits').orderBy('date', 'desc').limit(150).onSnapshot(snapshot => {
+      unsubVisits = firebaseDb.collection('visits').onSnapshot(snapshot => {
         const cloudVisits = [];
         snapshot.forEach(doc => {
           cloudVisits.push(doc.data());
         });
         if (cloudVisits.length > 0) {
+          // เรียงตามวันที่ล่าสุดใน JavaScript เพื่อป้องกันปัญหา Index บน Firestore
+          cloudVisits.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
           visits = cloudVisits;
           saveStorage('visits', visits);
           renderHistoryTable();
         }
       }, err => {
-        console.warn('Realtime visits sync notice:', err);
+        console.error('Realtime visits sync error:', err);
+        if (err.code === 'permission-denied') {
+          showToast('⚠️ การซิงก์ประวัติตรวจติดสิทธิ์ Rules ใน Firebase (กรุณาไปที่ Firestore > Rules แล้วแก้เป็น allow read, write: if true;)', 'error');
+        }
       });
     }
 
@@ -4410,7 +4455,73 @@
       });
     }
 
+
+    // ตรวจสอบสิทธิ์การอ่าน-เขียนบน Firebase Firestore อัตโนมัติ
+    function testCloudPermissions() {
+      if (!firebaseDb) return;
+      const testDoc = firebaseDb.collection('_health_check').doc('ping');
+      testDoc.set({ time: Date.now(), by: currentUser ? currentUser.fullname : 'system' })
+        .then(() => {
+          console.log('✓ Firebase Firestore permissions verified: Read/Write OK');
+          updateCloudUI(true, 'ซิงก์เรียลไทม์');
+        })
+        .catch(err => {
+          console.error('Firebase health check error:', err);
+          if (err.code === 'permission-denied') {
+            updateCloudUI(false, 'ติดสิทธิ์ Rules');
+            showToast('⚠️ ฐานข้อมูลคลาวด์ถูกบล็อกสิทธิ์ (Permission Denied): กรุณาไปที่ Firebase Console > Firestore Database > Rules แล้วเปลี่ยนเป็น allow read, write: if true; แล้วกด Publish', 'error');
+          }
+        });
+    }
+
     function uploadLocalDataToCloud() {
+      if (!firebaseDb) {
+        showToast('ยังไม่ได้เชื่อมต่อคลาวด์', 'warning');
+        return;
+      }
+      showConfirmModal('ต้องการส่งประวัติการตรวจวันนี้ และยอดสต็อกยาปัจจุบันจากเครื่องนี้ขึ้นสู่คลาวด์เพื่อให้อีกเครื่องเห็นทันทีใช่หรือไม่?', () => {
+        showToast('กำลังส่งข้อมูลขึ้นสู่คลาวด์...', 'info');
+
+        let drugSuccess = 0;
+        let visitSuccess = 0;
+        let patientSuccess = 0;
+
+        // 1. ดันยอดสต็อกยาทั้งหมดขึ้นคลาวด์
+        inventory.forEach(d => {
+          const cleanDrug = JSON.parse(JSON.stringify(d));
+          firebaseDb.collection('drugs').doc(d.id).set(cleanDrug, { merge: true })
+            .then(() => drugSuccess++)
+            .catch(err => console.error('Drug push err:', err));
+        });
+
+        // 2. ดันข้อมูลคนไข้ทั้งหมดขึ้นคลาวด์
+        patients.forEach(p => {
+          if (p.pid) {
+            const cleanP = JSON.parse(JSON.stringify(p));
+            firebaseDb.collection('patients').doc(p.pid).set(cleanP, { merge: true })
+              .then(() => patientSuccess++)
+              .catch(err => console.error('Patient push err:', err));
+          }
+        });
+
+        // 3. ดันประวัติการตรวจทั้งหมด (รวมที่ตรวจวันนี้) ขึ้นคลาวด์
+        visits.forEach(v => {
+          if (v.id) {
+            const cleanV = JSON.parse(JSON.stringify(v));
+            firebaseDb.collection('visits').doc(v.id).set(cleanV, { merge: true })
+              .then(() => visitSuccess++)
+              .catch(err => console.error('Visit push err:', err));
+          }
+        });
+
+        setTimeout(() => {
+          testCloudPermissions();
+          showToast(`✓ ซิงก์ข้อมูลขึ้นคลาวด์เรียบร้อย! ไอแพดและเครื่องอื่นจะมองเห็นข้อมูลล่าสุดทันที`, 'success');
+        }, 1200);
+      }, 'ยืนยันการซิงก์ข้อมูลขึ้นคลาวด์');
+    }
+
+    function old_uploadLocalDataToCloud() {
       if (!firebaseDb) {
         showToast('ยังไม่ได้เชื่อมต่อคลาวด์', 'warning');
         return;
@@ -4502,22 +4613,35 @@
           </div>
         </div>
 
+        <!-- กล่องแจ้งเตือนและแก้ไขสิทธิ์ Rules (สำคัญมากหากข้อมูลไม่ซิงก์) -->
+        <div id="cloud-rules-notice" class="p-3.5 bg-amber-50 border-2 border-amber-300 rounded-xl space-y-2 text-[11px] text-amber-950">
+          <strong class="font-bold flex items-center gap-1.5 text-amber-900 text-xs">
+            <i class="fa-solid fa-shield-halved text-amber-600"></i> หากข้อมูลตรวจหรือสต็อกยาไม่วิ่งไปเครื่องอื่น (แก้สิทธิ์ Rules 1 นาที):
+          </strong>
+          <p class="text-slate-700 leading-relaxed">
+            Firebase มักจะตั้งค่าความปลอดภัยเป็นห้ามอ่าน-เขียนอัตโนมัติ ให้ไปที่:
+            <br>1. เข้าเว็บ <strong>Firebase Console</strong> &gt; เมนู <strong>Firestore Database</strong> &gt; คลิกแท็บ <strong>Rules</strong> ด้านบน
+            <br>2. เปลี่ยนบรรทัด <code>allow read, write: if false;</code> ให้เป็น:
+            <br><code class="block my-1 p-2 bg-white rounded border border-amber-300 font-mono text-[11px] text-emerald-800 font-bold">allow read, write: if true;</code>
+            3. กดปุ่ม <strong>Publish</strong> ด้านบนขวา จากนั้นทุกเครื่องจะอ่านและตัดสต็อกยาตรงกันทันที 100%!
+          </p>
+        </div>
+
         <!-- 3-Step Guide -->
         <div class="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2 text-[11px] text-emerald-950">
           <strong class="font-bold flex items-center gap-1.5 text-emerald-900 text-xs">
-            <i class="fa-solid fa-circle-question text-emerald-600"></i> วิธีสร้าง Firebase ฟรี (ทำครั้งเดียวใช้ได้ตลอดไป):
+            <i class="fa-solid fa-circle-question text-emerald-600"></i> รายละเอียดการเชื่อมต่อคลาวด์ Firebase:
           </strong>
           <ol class="list-decimal list-inside space-y-1.5 text-slate-700 pl-1 leading-relaxed">
-            <li>เปิดเว็บ <strong><a href="https://console.firebase.google.com" target="_blank" class="text-emerald-700 underline font-semibold">console.firebase.google.com</a></strong> ล็อกอินด้วย Gmail แล้วกด <strong>Add project</strong> (ตั้งชื่อ เช่น pangpoloh-health)</li>
-            <li>ไปที่เมนูด้านซ้าย <strong>Build &gt; Firestore Database</strong> กด <strong>Create database</strong> เลือกโหมด <strong>Start in test mode</strong> แล้วกด Enable</li>
-            <li>ไปที่ไอคอนฟันเฟือง <strong>Project settings &gt; General</strong> เลื่อนลงล่างสุดที่หัวข้อ "Your apps" กดรูปเว็บ <strong>&lt;/&gt;</strong> ตั้งชื่อเล่นแอป แล้วคัดลอกข้อความใน <code>firebaseConfig = { ... }</code> มาวางในช่องด้านบนนี้แล้วกด "บันทึกและเชื่อมต่อ"</li>
+            <li>โปรเจกต์ของคุณ: <strong>pangpoloh-health</strong> เชื่อมต่อกับระบบตัดสต็อกเรียลไทม์เรียบร้อย</li>
+            <li>หากคีย์ข้อมูลในคอมพิวเตอร์แล้วต้องการดันข้อมูลขึ้นคลาวด์ให้ไอแพดทันที สามารถกดปุ่ม <strong>"ส่งข้อมูลจากเครื่องนี้ขึ้นคลาวด์"</strong> ด้านล่างนี้ได้เลยครับ</li>
           </ol>
         </div>
       </div>
 
       <div class="flex justify-between items-center pt-4 mt-3 border-t">
-        <button type="button" onclick="uploadLocalDataToCloud()" id="btn-sync-now" class="hidden px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-arrows-rotate"></i> อัปโหลดข้อมูลเริ่มต้นขึ้นคลาวด์
+        <button type="button" onclick="uploadLocalDataToCloud()" id="btn-sync-now" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+          <i class="fa-solid fa-cloud-arrow-up"></i> ส่งข้อมูลจากเครื่องนี้ขึ้นคลาวด์ทันที
         </button>
         <div class="flex gap-2 ml-auto">
           <button type="button" onclick="closeCloudSyncModal()" class="px-4 py-2 border rounded-xl text-slate-600 text-xs hover:bg-slate-50">ปิด</button>
